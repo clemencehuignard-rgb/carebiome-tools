@@ -1,0 +1,729 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carebiome — Outil Prospection B2B2C</title>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0D1A2E; color: #E8F4F8; min-height: 100vh; }
+
+  /* SETUP SCREEN */
+  #setup-screen { display: flex; align-items: center; justify-content: center; min-height: 100vh; }
+  .setup-box { background: #1B2A4A; border-radius: 16px; padding: 40px; width: 520px; border: 1px solid #00B4D8; }
+  .setup-box h1 { color: #00B4D8; font-size: 20px; margin-bottom: 6px; letter-spacing: 2px; }
+  .setup-box .sub { color: #7BA7BC; font-size: 12px; margin-bottom: 28px; }
+  .setup-field { margin-bottom: 16px; }
+  .setup-field label { font-size: 11px; color: #7BA7BC; text-transform: uppercase; letter-spacing: 0.5px; display: block; margin-bottom: 6px; }
+  .setup-field input { width: 100%; background: #0D1A2E; border: 1px solid #2A3F5F; border-radius: 8px; padding: 10px 14px; color: #E8F4F8; font-size: 12px; font-family: 'Courier New', monospace; }
+  .setup-field input:focus { outline: none; border-color: #00B4D8; }
+  .setup-btn { width: 100%; background: #00B4D8; color: #0D1A2E; border: none; border-radius: 8px; padding: 12px; font-size: 14px; font-weight: 700; cursor: pointer; margin-top: 8px; }
+  .setup-btn:hover { background: #0096B5; }
+  .setup-help { background: rgba(0,180,216,0.07); border-radius: 8px; padding: 14px; margin-top: 20px; font-size: 11px; color: #7BA7BC; line-height: 1.8; }
+  .setup-help code { color: #00B4D8; background: rgba(0,180,216,0.1); padding: 1px 5px; border-radius: 3px; font-size: 10px; }
+  .setup-error { background: rgba(239,68,68,0.1); border: 1px solid #EF4444; border-radius: 6px; padding: 10px 14px; margin-top: 12px; font-size: 11px; color: #EF4444; display: none; }
+
+  /* LOADING */
+  #loading-screen { display: none; align-items: center; justify-content: center; min-height: 100vh; flex-direction: column; gap: 16px; }
+  .spinner { width: 40px; height: 40px; border: 3px solid rgba(0,180,216,0.2); border-top-color: #00B4D8; border-radius: 50%; animation: spin .8s linear infinite; }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* MAIN APP */
+  #app { display: none; }
+
+  /* HEADER */
+  header { background: linear-gradient(135deg, #1B2A4A, #0D1A2E); padding: 16px 30px; border-bottom: 2px solid #00B4D8; display: flex; align-items: center; justify-content: space-between; }
+  header h1 { font-size: 20px; color: #00B4D8; letter-spacing: 2px; font-weight: 700; }
+  header .subtitle { font-size: 11px; color: #7BA7BC; margin-top: 2px; }
+  .header-right { display: flex; align-items: center; gap: 16px; }
+  .stats-header { display: flex; gap: 12px; }
+  .stat-pill { background: rgba(0,180,216,0.15); border: 1px solid #00B4D8; border-radius: 20px; padding: 5px 14px; text-align: center; }
+  .stat-pill .val { font-size: 16px; font-weight: 700; color: #00B4D8; }
+  .stat-pill .lbl { font-size: 9px; color: #7BA7BC; }
+  .sync-status { font-size: 10px; color: #06D6A0; display: flex; align-items: center; gap: 5px; }
+  .sync-dot { width: 7px; height: 7px; border-radius: 50%; background: #06D6A0; animation: pulse 2s infinite; }
+  @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:.3; } }
+  .btn-reset { font-size: 10px; color: #7BA7BC; background: none; border: 1px solid #2A3F5F; border-radius: 4px; padding: 4px 8px; cursor: pointer; }
+  .btn-reset:hover { color: #EF4444; border-color: #EF4444; }
+
+  /* TABS */
+  .tabs { display: flex; border-bottom: 2px solid #1B2A4A; background: #111D30; }
+  .tab { padding: 12px 22px; cursor: pointer; font-size: 13px; color: #7BA7BC; border-bottom: 3px solid transparent; transition: all .2s; }
+  .tab.active { color: #00B4D8; border-bottom-color: #00B4D8; background: rgba(0,180,216,0.08); }
+  .tab:hover:not(.active) { color: #E8F4F8; background: rgba(255,255,255,0.04); }
+
+  /* PANELS */
+  .panel { display: none; padding: 24px 30px; }
+  .panel.active { display: block; }
+
+  /* KANBAN */
+  .kanban { display: grid; grid-template-columns: repeat(5, 1fr); gap: 14px; }
+  .column { background: #111D30; border-radius: 10px; padding: 12px; min-height: 400px; }
+  .col-header { font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 12px; padding-bottom: 8px; border-bottom: 2px solid; display: flex; justify-content: space-between; align-items: center; }
+  .col-a-contacter { border-color: #7BA7BC; color: #7BA7BC; }
+  .col-contacte { border-color: #F59E0B; color: #F59E0B; }
+  .col-rdv { border-color: #8B5CF6; color: #8B5CF6; }
+  .col-pilote { border-color: #06D6A0; color: #06D6A0; }
+  .col-signe { border-color: #00B4D8; color: #00B4D8; }
+  .col-count { background: rgba(255,255,255,0.1); border-radius: 10px; padding: 1px 7px; font-size: 10px; }
+
+  .card { background: #1B2A4A; border-radius: 8px; padding: 12px; margin-bottom: 10px; cursor: pointer; border-left: 3px solid transparent; transition: all .2s; }
+  .card:hover { transform: translateY(-2px); box-shadow: 0 4px 12px rgba(0,180,216,0.2); }
+  .card.tier1 { border-left-color: #06D6A0; }
+  .card.tier2 { border-left-color: #F59E0B; }
+  .card.tier3 { border-left-color: #EF4444; }
+  .card-name { font-size: 12px; font-weight: 700; color: #E8F4F8; margin-bottom: 4px; }
+  .card-city { font-size: 10px; color: #7BA7BC; }
+  .card-vol { font-size: 10px; color: #00B4D8; margin-top: 4px; }
+  .card-note { font-size: 10px; color: #B0C8D4; margin-top: 6px; font-style: italic; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .tier-badge { font-size: 9px; font-weight: 700; padding: 2px 6px; border-radius: 4px; float: right; }
+  .tier-badge.t1 { background: rgba(6,214,160,0.2); color: #06D6A0; }
+  .tier-badge.t2 { background: rgba(245,158,11,0.2); color: #F59E0B; }
+  .tier-badge.t3 { background: rgba(239,68,68,0.2); color: #EF4444; }
+  .empty-col { text-align: center; color: rgba(255,255,255,0.15); font-size: 11px; padding: 20px 0; }
+
+  /* MODAL */
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1000; align-items: center; justify-content: center; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: #1B2A4A; border-radius: 12px; padding: 28px; width: 600px; max-height: 85vh; overflow-y: auto; border: 1px solid #00B4D8; }
+  .modal h2 { color: #00B4D8; font-size: 16px; margin-bottom: 20px; }
+  .modal-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; margin-bottom: 16px; }
+  .field label { font-size: 11px; color: #7BA7BC; display: block; margin-bottom: 5px; text-transform: uppercase; letter-spacing: 0.5px; }
+  .field input, .field select, .field textarea { width: 100%; background: #0D1A2E; border: 1px solid #2A3F5F; border-radius: 6px; padding: 8px 10px; color: #E8F4F8; font-size: 12px; font-family: inherit; }
+  .field input:focus, .field select:focus, .field textarea:focus { outline: none; border-color: #00B4D8; }
+  .field textarea { resize: vertical; min-height: 70px; }
+  .field.full { grid-column: 1 / -1; }
+  .modal-btns { display: flex; gap: 10px; justify-content: flex-end; margin-top: 16px; }
+  .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-size: 12px; font-weight: 600; transition: all .2s; }
+  .btn-primary { background: #00B4D8; color: #0D1A2E; }
+  .btn-primary:hover { background: #0096B5; }
+  .btn-danger { background: rgba(239,68,68,0.15); color: #EF4444; border: 1px solid #EF4444; }
+  .btn-danger:hover { background: rgba(239,68,68,0.35); }
+  .btn-secondary { background: rgba(255,255,255,0.08); color: #7BA7BC; border: 1px solid #2A3F5F; }
+  .btn-secondary:hover { background: rgba(255,255,255,0.15); }
+  .btn-email { background: rgba(0,180,216,0.1); color: #00B4D8; border: 1px solid #00B4D8; font-size: 11px; padding: 5px 12px; }
+
+  /* LIST VIEW */
+  .prospect-list { background: #111D30; border-radius: 10px; overflow: hidden; }
+  .prospect-list-header { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 80px; padding: 12px 16px; font-size: 10px; color: #7BA7BC; text-transform: uppercase; letter-spacing: 1px; border-bottom: 1px solid #1B2A4A; }
+  .prospect-row { display: grid; grid-template-columns: 2fr 1fr 1fr 1fr 1.5fr 80px; padding: 12px 16px; font-size: 12px; border-bottom: 1px solid rgba(255,255,255,0.04); align-items: center; transition: background .15s; cursor: pointer; }
+  .prospect-row:hover { background: rgba(0,180,216,0.05); }
+  .status-dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+  .dot-a-contacter { background: #7BA7BC; }
+  .dot-contacte { background: #F59E0B; }
+  .dot-rdv { background: #8B5CF6; }
+  .dot-pilote { background: #06D6A0; }
+  .dot-signe { background: #00B4D8; }
+
+  /* ROI */
+  .roi-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; }
+  .roi-input-section, .roi-result-section { background: #111D30; border-radius: 10px; padding: 20px; }
+  .roi-input-section h3, .roi-result-section h3 { color: #00B4D8; font-size: 13px; margin-bottom: 16px; text-transform: uppercase; letter-spacing: 1px; }
+  .slider-field { margin-bottom: 16px; }
+  .slider-field label { font-size: 11px; color: #7BA7BC; display: flex; justify-content: space-between; margin-bottom: 6px; }
+  .slider-field label span { color: #00B4D8; font-weight: 700; }
+  input[type=range] { width: 100%; accent-color: #00B4D8; }
+  .roi-result { display: flex; justify-content: space-between; align-items: center; padding: 10px 0; border-bottom: 1px solid rgba(255,255,255,0.06); }
+  .roi-result:last-child { border-bottom: none; }
+  .roi-label { font-size: 11px; color: #7BA7BC; }
+  .roi-value { font-size: 14px; font-weight: 700; color: #06D6A0; }
+  .roi-value.neutral { color: #F59E0B; }
+  .roi-big { font-size: 36px; color: #06D6A0; font-weight: 700; text-align: center; padding: 20px 0 10px; }
+  .roi-big-label { text-align: center; font-size: 11px; color: #7BA7BC; margin-bottom: 20px; }
+  .breakeven-bar { background: rgba(255,255,255,0.07); border-radius: 4px; height: 8px; overflow: hidden; margin-top: 16px; }
+  .breakeven-fill { height: 100%; background: linear-gradient(90deg, #06D6A0, #00B4D8); border-radius: 4px; transition: width .5s; }
+
+  /* TEMPLATES */
+  .template-card { background: #111D30; border-radius: 10px; padding: 20px; margin-bottom: 16px; border-left: 3px solid #00B4D8; }
+  .template-card h3 { color: #00B4D8; font-size: 13px; margin-bottom: 6px; }
+  .template-card .target { font-size: 11px; color: #7BA7BC; margin-bottom: 12px; }
+  .template-body { background: #0D1A2E; border-radius: 6px; padding: 14px; font-size: 11px; color: #B0C8D4; white-space: pre-wrap; line-height: 1.7; font-family: 'Courier New', monospace; max-height: 220px; overflow-y: auto; }
+  .copy-btn { margin-top: 10px; font-size: 11px; }
+  .copied { color: #06D6A0 !important; border-color: #06D6A0 !important; background: rgba(6,214,160,0.1) !important; }
+
+  /* MISC */
+  .search-bar { display: flex; gap: 12px; margin-bottom: 20px; align-items: center; }
+  .search-bar input { background: #111D30; border: 1px solid #2A3F5F; border-radius: 6px; padding: 8px 14px; color: #E8F4F8; font-size: 12px; width: 260px; }
+  .search-bar input:focus { outline: none; border-color: #00B4D8; }
+  .filter-btn { padding: 7px 14px; border-radius: 6px; border: 1px solid #2A3F5F; background: transparent; color: #7BA7BC; cursor: pointer; font-size: 11px; transition: all .2s; }
+  .filter-btn.active { border-color: #00B4D8; color: #00B4D8; background: rgba(0,180,216,0.1); }
+  .section-title { font-size: 12px; font-weight: 700; color: #7BA7BC; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 16px; }
+  .add-btn { position: fixed; bottom: 30px; right: 30px; background: #00B4D8; color: #0D1A2E; border: none; border-radius: 50px; padding: 14px 24px; font-size: 14px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 20px rgba(0,180,216,0.4); transition: all .2s; z-index: 100; }
+  .add-btn:hover { transform: scale(1.05); box-shadow: 0 6px 28px rgba(0,180,216,0.6); }
+  .toast { position: fixed; bottom: 90px; right: 30px; background: #06D6A0; color: #0D1A2E; padding: 10px 20px; border-radius: 8px; font-size: 12px; font-weight: 700; z-index: 200; opacity: 0; transition: opacity .3s; pointer-events: none; }
+  .toast.show { opacity: 1; }
+</style>
+</head>
+<body>
+
+<!-- ═══════════════════ SETUP SCREEN ═══════════════════ -->
+<div id="setup-screen">
+  <div class="setup-box">
+    <h1>CAREBIOME</h1>
+    <div class="sub">Configuration Supabase — Prospection B2B2C</div>
+
+    <div class="setup-field">
+      <label>Supabase Project URL</label>
+      <input type="text" id="sb-url" placeholder="https://xxxxxxxxxxxx.supabase.co">
+    </div>
+    <div class="setup-field">
+      <label>Supabase Anon Key</label>
+      <input type="text" id="sb-key" placeholder="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...">
+    </div>
+    <button class="setup-btn" onclick="connectSupabase()">Se connecter</button>
+    <div class="setup-error" id="setup-error"></div>
+
+    <div class="setup-help">
+      <strong style="color:#00B4D8">Comment obtenir ces informations ?</strong><br>
+      1. Va sur <code>supabase.com</code> → ton projet<br>
+      2. Menu gauche → <code>Settings</code> → <code>API</code><br>
+      3. Copie <code>Project URL</code> et <code>anon public</code> key<br><br>
+      <strong style="color:#00B4D8">Créer la table (SQL Editor) :</strong><br>
+      Colle et exécute le SQL ci-dessous dans <code>SQL Editor</code> de Supabase :
+      <div style="margin-top:8px;background:#0D1A2E;border-radius:6px;padding:10px;font-family:'Courier New';font-size:10px;color:#06D6A0;line-height:1.8;">
+create table prospects (<br>
+&nbsp;&nbsp;id bigserial primary key,<br>
+&nbsp;&nbsp;nom text not null,<br>
+&nbsp;&nbsp;ville text,<br>
+&nbsp;&nbsp;tel text,<br>
+&nbsp;&nbsp;email text,<br>
+&nbsp;&nbsp;contact text,<br>
+&nbsp;&nbsp;volume text,<br>
+&nbsp;&nbsp;tier text default '1',<br>
+&nbsp;&nbsp;statut text default 'a-contacter',<br>
+&nbsp;&nbsp;notes text,<br>
+&nbsp;&nbsp;next_contact date,<br>
+&nbsp;&nbsp;kits integer default 15,<br>
+&nbsp;&nbsp;created_at timestamptz default now()<br>
+);<br>
+alter table prospects enable row level security;<br>
+create policy "public_all" on prospects for all using (true) with check (true);
+      </div>
+      <button class="btn btn-email" style="margin-top:8px;font-size:10px;" onclick="copySql()">📋 Copier le SQL</button>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════ LOADING ═══════════════════ -->
+<div id="loading-screen">
+  <div class="spinner"></div>
+  <div style="color:#7BA7BC;font-size:12px;">Connexion à Supabase...</div>
+</div>
+
+<!-- ═══════════════════ APP ═══════════════════ -->
+<div id="app">
+
+<header>
+  <div>
+    <h1>CAREBIOME — PROSPECTION B2B2C</h1>
+    <div class="subtitle">Centres de Check-Up &amp; Médecine Préventive France</div>
+  </div>
+  <div class="header-right">
+    <div class="sync-status">
+      <div class="sync-dot"></div>
+      Synchronisé en temps réel
+    </div>
+    <div class="stats-header">
+      <div class="stat-pill"><div class="val" id="stat-total">0</div><div class="lbl">Prospects</div></div>
+      <div class="stat-pill"><div class="val" id="stat-rdv">0</div><div class="lbl">RDV fixés</div></div>
+      <div class="stat-pill"><div class="val" id="stat-signes">0</div><div class="lbl">Signés</div></div>
+      <div class="stat-pill"><div class="val" id="stat-ca">0 k€</div><div class="lbl">CA projeté/an</div></div>
+    </div>
+    <button class="btn-reset" onclick="resetConfig()">⚙ Reconfigurer</button>
+  </div>
+</header>
+
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('kanban', this)">🗂 Pipeline</div>
+  <div class="tab" onclick="switchTab('liste', this)">📋 Liste</div>
+  <div class="tab" onclick="switchTab('templates', this)">📧 Templates Email</div>
+</div>
+
+<!-- KANBAN -->
+<div id="panel-kanban" class="panel active">
+  <div class="search-bar">
+    <input type="text" id="search-input" placeholder="Rechercher un centre..." oninput="renderAll()">
+    <button class="filter-btn active" onclick="setFilter('all', this)">Tous</button>
+    <button class="filter-btn" onclick="setFilter('1', this)">Tier 1</button>
+    <button class="filter-btn" onclick="setFilter('2', this)">Tier 2</button>
+    <button class="filter-btn" onclick="setFilter('3', this)">Tier 3</button>
+  </div>
+  <div class="kanban" id="kanban-board"></div>
+</div>
+
+<!-- LISTE -->
+<div id="panel-liste" class="panel">
+  <div class="prospect-list">
+    <div class="prospect-list-header">
+      <div>Centre</div><div>Ville</div><div>Volume/an</div><div>Tier</div><div>Statut</div><div>Actions</div>
+    </div>
+    <div id="list-rows"></div>
+  </div>
+</div>
+
+<!-- TEMPLATES -->
+<div id="panel-templates" class="panel">
+  <div class="section-title">Templates Email — Copier-Coller</div>
+
+  <div class="template-card">
+    <h3>Template 1 — IPC / Centres Indépendants (FR)</h3>
+    <div class="target">Cibles : IPC Paris, IPC Lyon, centres privés indépendants</div>
+    <div class="template-body" id="tpl1">Objet : Partenariat innovation santé — Upsell microbiome pour bilans 50+
+
+Bonjour [Prénom],
+
+IPC accompagne depuis 50 ans les Français dans la prévention santé. Je vous contacte pour vous proposer un partenariat sur l'analyse du microbiome intestinal, une innovation scientifique majeure pour la santé des 50+.
+
+Carebiome est une solution d'analyse NGS du microbiome validée scientifiquement (Biofortis ISO 15189, Pr. Harry Sokol, Hôpital Saint-Antoine) et positionnée comme upsell de vos bilans check-up.
+
+Bénéfices pour votre centre :
+• Différenciation concurrentielle : seul acteur à proposer ce suivi de pointe
+• Revenu additionnel : +169 € de panier par bilan + 12% commission sur abonnements
+• Fidélisation renforcée : suivi trimestriel du patient via app dédiée
+• Zéro investissement : formation 1 jour, kits en consignation, hotline 7j/7
+
+Des centres similaires génèrent +11 k€ de marge nette annuelle avec seulement 15 kits/mois (break-even en 3 mois).
+
+Seriez-vous disponible pour une présentation de 30 minutes la semaine prochaine ?
+
+Bien cordialement,
+[Votre nom] — Carebiome, Partenariats B2B2C
+[email] | [téléphone]</div>
+    <button class="btn btn-email copy-btn" onclick="copyTemplate('tpl1', this)">📋 Copier</button>
+  </div>
+
+  <div class="template-card">
+    <h3>Template 2 — American Hospital / Centres Premium (EN)</h3>
+    <div class="target">Cibles : American Hospital Paris, centres à clientèle internationale</div>
+    <div class="template-body" id="tpl2">Subject: Check-Up Center Innovation — Gut Microbiome Analysis for Premium Clientele
+
+Hello [First Name],
+
+The American Hospital of Paris is renowned for its excellence in preventive medicine. I'd like to introduce Carebiome, a cutting-edge gut microbiome analysis solution perfectly suited for your Check-Up Center clientele.
+
+Why this matters:
+• Premium NGS analysis, 8 biomarkers validated by Pr. Harry Sokol (Hôpital Saint-Antoine)
+• Longitudinal tracking familiar to your international clients (similar to Viome, ZOE)
+• €169 upsell per check-up + 12% recurring commission on subscriptions
+• Turnkey: 1-day training, 24/7 support, white-label option
+
+Similar centers achieve €11k+ annual margin with 15 kits/month, break-even in 3 months.
+
+Could we schedule 30 minutes this week?
+
+Best regards,
+[Your name] — Carebiome, Business Development
+[email] | [phone]</div>
+    <button class="btn btn-email copy-btn" onclick="copyTemplate('tpl2', this)">📋 Copier</button>
+  </div>
+
+  <div class="template-card">
+    <h3>Template 3 — Relance J+7</h3>
+    <div class="target">Cibles : tous prospects sans réponse après 7 jours</div>
+    <div class="template-body" id="tpl3">Objet : Re : Partenariat microbiome — Question rapide
+
+Bonjour [Prénom],
+
+Je me permets de revenir suite à mon message du [date].
+
+Question directe : avez-vous 20 minutes cette semaine pour voir si notre solution peut générer un revenu complémentaire pour votre centre ?
+
+En bref :
+→ 15 kits/mois = +11 k€ de marge/an
+→ Aucun investissement, kits en consignation
+→ Break-even en 3 mois
+
+Si ce n'est pas le bon moment, pouvez-vous m'indiquer qui contacter ?
+
+Merci,
+[Votre nom] — Carebiome
+[email] | [téléphone]</div>
+    <button class="btn btn-email copy-btn" onclick="copyTemplate('tpl3', this)">📋 Copier</button>
+  </div>
+</div>
+
+</div><!-- /app -->
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal">
+  <div class="modal">
+    <h2 id="modal-title">Nouveau prospect</h2>
+    <div class="modal-grid">
+      <div class="field"><label>Nom du centre</label><input type="text" id="f-nom"></div>
+      <div class="field"><label>Ville</label><input type="text" id="f-ville"></div>
+      <div class="field"><label>Téléphone</label><input type="text" id="f-tel"></div>
+      <div class="field"><label>Email</label><input type="text" id="f-email"></div>
+      <div class="field"><label>Contact (nom + rôle)</label><input type="text" id="f-contact"></div>
+      <div class="field"><label>Volume bilans/an</label><input type="text" id="f-volume"></div>
+      <div class="field">
+        <label>Tier priorité</label>
+        <select id="f-tier">
+          <option value="1">Tier 1 — Prioritaire</option>
+          <option value="2">Tier 2 — Secondaire</option>
+          <option value="3">Tier 3 — Faible</option>
+        </select>
+      </div>
+      <div class="field">
+        <label>Statut</label>
+        <select id="f-statut">
+          <option value="a-contacter">À contacter</option>
+          <option value="contacte">Contacté</option>
+          <option value="rdv">RDV fixé</option>
+          <option value="pilote">En pilote</option>
+          <option value="signe">Signé</option>
+        </select>
+      </div>
+      <div class="field full"><label>Notes / Historique</label><textarea id="f-notes" rows="3"></textarea></div>
+      <div class="field"><label>Date prochain contact</label><input type="date" id="f-next"></div>
+      <div class="field"><label>Kits/mois (objectif)</label><input type="number" id="f-kits" value="15"></div>
+    </div>
+    <div class="modal-btns">
+      <button class="btn btn-danger" id="btn-delete" onclick="deleteProspect()" style="display:none">Supprimer</button>
+      <button class="btn btn-secondary" onclick="closeModal()">Annuler</button>
+      <button class="btn btn-primary" onclick="saveProspect()">Enregistrer</button>
+    </div>
+  </div>
+</div>
+
+<button class="add-btn" onclick="openModal()" style="display:none" id="fab">+ Nouveau prospect</button>
+<div class="toast" id="toast"></div>
+
+<script>
+const SQL_CREATE = `create table prospects (
+  id bigserial primary key,
+  nom text not null,
+  ville text,
+  tel text,
+  email text,
+  contact text,
+  volume text,
+  tier text default '1',
+  statut text default 'a-contacter',
+  notes text,
+  next_contact date,
+  kits integer default 15,
+  created_at timestamptz default now()
+);
+alter table prospects enable row level security;
+create policy "public_all" on prospects for all using (true) with check (true);`;
+
+const DEFAULT_PROSPECTS = [
+  { nom: 'IPC Paris', ville: 'Paris 16e', tel: '01 53 67 35 35', email: 'partenariats@ipc.asso.fr', contact: 'Email partenariats direct', volume: '8 000 — 12 000', tier: '1', statut: 'a-contacter', notes: 'Plus grand réseau FR. Contacter via email partenariats. Potentiel déploiement multi-sites.', next_contact: null, kits: 20 },
+  { nom: 'American Hospital Paris', ville: 'Neuilly-sur-Seine', tel: '+33 1 46 41 27 38', email: 'edscom@ahparis.org', contact: 'Pr Benoît Gallix (DG)', volume: '8 000 — 12 000', tier: '1', statut: 'a-contacter', notes: 'Centre le plus premium. Clientèle expats & executives. Envoyer template EN.', next_contact: null, kits: 20 },
+  { nom: 'Clinique Hartmann', ville: 'Neuilly-sur-Seine', tel: '01 41 49 91 91', email: '', contact: 'À qualifier (appel standard)', volume: '5 000 — 8 000', tier: '1', statut: 'a-contacter', notes: 'Appeler standard → responsable médecine préventive. Groupe CMC Ambroise Paré.', next_contact: null, kits: 15 },
+  { nom: 'IPC Lyon', ville: 'Lyon 6e', tel: '', email: '', contact: 'À qualifier', volume: '6 000 — 9 000', tier: '1', statut: 'a-contacter', notes: 'Approcher après succès IPC Paris.', next_contact: null, kits: 15 },
+  { nom: 'Hôpital Privé des Peupliers', ville: 'Paris 13e', tel: '', email: '', contact: 'Céline Petit (DG)', volume: '4 000 — 6 000', tier: '2', statut: 'a-contacter', notes: 'Groupe Ramsay Santé. Déploiement groupe possible après pilote.', next_contact: null, kits: 10 },
+  { nom: 'Centre Médical Veolia', ville: 'Paris 15e', tel: '', email: '', contact: 'À qualifier', volume: '3 500 — 5 500', tier: '2', statut: 'a-contacter', notes: 'Centre santé entreprise. Bonne sensibilité prévention.', next_contact: null, kits: 8 },
+  { nom: 'Clinique du Parc Lyon', ville: 'Lyon', tel: '', email: '', contact: 'À qualifier', volume: '3 000 — 5 000', tier: '2', statut: 'a-contacter', notes: 'Approcher en Tier 2 après Paris.', next_contact: null, kits: 8 },
+  { nom: 'IPC Marseille', ville: 'Marseille', tel: '', email: '', contact: 'À qualifier', volume: '3 500 — 5 500', tier: '2', statut: 'a-contacter', notes: 'Réseau IPC. Approcher après Paris/Lyon.', next_contact: null, kits: 8 }
+];
+
+const STATUTS = {
+  'a-contacter': { label: 'À contacter', color: '#7BA7BC' },
+  'contacte':    { label: 'Contacté',    color: '#F59E0B' },
+  'rdv':         { label: 'RDV fixé',    color: '#8B5CF6' },
+  'pilote':      { label: 'En pilote',   color: '#06D6A0' },
+  'signe':       { label: 'Signé ✓',     color: '#00B4D8' }
+};
+
+const COLS = [
+  { key: 'a-contacter', label: 'À contacter', cls: 'col-a-contacter' },
+  { key: 'contacte',    label: 'Contacté',    cls: 'col-contacte' },
+  { key: 'rdv',         label: 'RDV fixé',    cls: 'col-rdv' },
+  { key: 'pilote',      label: 'En pilote',   cls: 'col-pilote' },
+  { key: 'signe',       label: 'Signé',       cls: 'col-signe' }
+];
+
+let sb = null;
+let prospects = [];
+let editingId = null;
+let activeFilter = 'all';
+let realtimeChannel = null;
+
+// ── SUPABASE CONNECT ──────────────────────────────────────────────
+async function connectSupabase() {
+  const url = document.getElementById('sb-url').value.trim();
+  const key = document.getElementById('sb-key').value.trim();
+  const errEl = document.getElementById('setup-error');
+  errEl.style.display = 'none';
+
+  if (!url || !key) {
+    errEl.textContent = 'Merci de renseigner les deux champs.';
+    errEl.style.display = 'block';
+    return;
+  }
+
+  document.getElementById('setup-screen').style.display = 'none';
+  document.getElementById('loading-screen').style.display = 'flex';
+
+  try {
+    sb = supabase.createClient(url, key);
+
+    // Test connexion
+    const { error } = await sb.from('prospects').select('id').limit(1);
+    if (error) throw error;
+
+    // Sauvegarder config
+    localStorage.setItem('sb_url', url);
+    localStorage.setItem('sb_key', key);
+
+    await loadAndStart();
+  } catch (e) {
+    document.getElementById('loading-screen').style.display = 'none';
+    document.getElementById('setup-screen').style.display = 'flex';
+    errEl.textContent = 'Erreur : ' + (e.message || e.toString()) + ' — Vérifie que la table "prospects" existe (copie le SQL fourni dans SQL Editor).';
+    errEl.style.display = 'block';
+  }
+}
+
+async function loadAndStart() {
+  // Charger données
+  const { data, error } = await sb.from('prospects').select('*').order('created_at');
+  if (error) throw error;
+
+  // Si vide, insérer données par défaut
+  if (data.length === 0) {
+    const { error: insErr } = await sb.from('prospects').insert(DEFAULT_PROSPECTS);
+    if (insErr) throw insErr;
+    const { data: d2 } = await sb.from('prospects').select('*').order('created_at');
+    prospects = d2 || [];
+  } else {
+    prospects = data;
+  }
+
+  // Démarrer realtime
+  startRealtime();
+
+  // Afficher app
+  document.getElementById('loading-screen').style.display = 'none';
+  document.getElementById('app').style.display = 'block';
+  document.getElementById('fab').style.display = 'block';
+
+  renderAll();
+}
+
+function startRealtime() {
+  if (realtimeChannel) realtimeChannel.unsubscribe();
+  realtimeChannel = sb
+    .channel('prospects-changes')
+    .on('postgres_changes', { event: '*', schema: 'public', table: 'prospects' }, payload => {
+      if (payload.eventType === 'INSERT') {
+        prospects.push(payload.new);
+      } else if (payload.eventType === 'UPDATE') {
+        const idx = prospects.findIndex(p => p.id === payload.new.id);
+        if (idx !== -1) prospects[idx] = payload.new;
+      } else if (payload.eventType === 'DELETE') {
+        prospects = prospects.filter(p => p.id !== payload.old.id);
+      }
+      renderAll();
+      showToast('Mis à jour en temps réel');
+    })
+    .subscribe();
+}
+
+function resetConfig() {
+  localStorage.removeItem('sb_url');
+  localStorage.removeItem('sb_key');
+  if (realtimeChannel) realtimeChannel.unsubscribe();
+  document.getElementById('app').style.display = 'none';
+  document.getElementById('fab').style.display = 'none';
+  document.getElementById('setup-screen').style.display = 'flex';
+}
+
+// ── FILTER & SEARCH ───────────────────────────────────────────────
+function setFilter(tier, btn) {
+  activeFilter = tier;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderAll();
+}
+
+function getFiltered() {
+  const q = (document.getElementById('search-input').value || '').toLowerCase();
+  return prospects.filter(p => {
+    const matchTier = activeFilter === 'all' || p.tier === activeFilter;
+    const matchQ = !q || p.nom.toLowerCase().includes(q) || (p.ville || '').toLowerCase().includes(q);
+    return matchTier && matchQ;
+  });
+}
+
+// ── STATS ─────────────────────────────────────────────────────────
+function updateStats() {
+  document.getElementById('stat-total').textContent = prospects.length;
+  document.getElementById('stat-rdv').textContent = prospects.filter(p => p.statut === 'rdv').length;
+  document.getElementById('stat-signes').textContent = prospects.filter(p => p.statut === 'signe').length;
+  const ca = prospects.filter(p => ['pilote','signe'].includes(p.statut))
+    .reduce((s, p) => s + (p.kits || 15) * 169 * 12, 0);
+  document.getElementById('stat-ca').textContent = ca ? Math.round(ca/1000) + ' k€' : '0 k€';
+}
+
+// ── KANBAN ────────────────────────────────────────────────────────
+function renderKanban() {
+  const board = document.getElementById('kanban-board');
+  const filtered = getFiltered();
+  board.innerHTML = '';
+  COLS.forEach(col => {
+    const cards = filtered.filter(p => p.statut === col.key);
+    const div = document.createElement('div');
+    div.className = 'column';
+    div.innerHTML = `<div class="col-header ${col.cls}"><span>${col.label}</span><span class="col-count">${cards.length}</span></div>`;
+    if (!cards.length) {
+      div.innerHTML += '<div class="empty-col">Aucun prospect</div>';
+    } else {
+      cards.forEach(p => {
+        const card = document.createElement('div');
+        card.className = `card tier${p.tier}`;
+        card.onclick = () => openModal(p.id);
+        card.innerHTML = `
+          <span class="tier-badge t${p.tier}">T${p.tier}</span>
+          <div class="card-name">${p.nom}</div>
+          <div class="card-city">${p.ville || ''}</div>
+          <div class="card-vol">${p.volume || '—'} bilans/an</div>
+          ${p.notes ? `<div class="card-note">${p.notes}</div>` : ''}
+          ${p.next_contact ? `<div style="font-size:10px;color:#F59E0B;margin-top:5px;">📅 ${p.next_contact}</div>` : ''}
+        `;
+        div.appendChild(card);
+      });
+    }
+    board.appendChild(div);
+  });
+}
+
+// ── LIST ──────────────────────────────────────────────────────────
+function renderList() {
+  const rows = document.getElementById('list-rows');
+  rows.innerHTML = '';
+  getFiltered().forEach(p => {
+    const s = STATUTS[p.statut] || STATUTS['a-contacter'];
+    const div = document.createElement('div');
+    div.className = 'prospect-row';
+    div.onclick = () => openModal(p.id);
+    div.innerHTML = `
+      <div><strong>${p.nom}</strong><br><span style="font-size:10px;color:#7BA7BC;">${p.contact || '—'}</span></div>
+      <div>${p.ville || '—'}</div>
+      <div style="color:#00B4D8">${p.volume || '—'}</div>
+      <div><span class="tier-badge t${p.tier}" style="float:none">Tier ${p.tier}</span></div>
+      <div><span class="status-dot dot-${p.statut}"></span>${s.label}</div>
+      <div><button class="btn btn-email" onclick="event.stopPropagation();openModal(${p.id})">Éditer</button></div>
+    `;
+    rows.appendChild(div);
+  });
+}
+
+function renderAll() { renderKanban(); renderList(); updateStats(); }
+
+// ── MODAL ─────────────────────────────────────────────────────────
+function openModal(id) {
+  editingId = id || null;
+  const btnDel = document.getElementById('btn-delete');
+  if (id) {
+    const p = prospects.find(x => x.id === id);
+    if (!p) return;
+    document.getElementById('modal-title').textContent = 'Modifier : ' + p.nom;
+    document.getElementById('f-nom').value = p.nom || '';
+    document.getElementById('f-ville').value = p.ville || '';
+    document.getElementById('f-tel').value = p.tel || '';
+    document.getElementById('f-email').value = p.email || '';
+    document.getElementById('f-contact').value = p.contact || '';
+    document.getElementById('f-volume').value = p.volume || '';
+    document.getElementById('f-tier').value = p.tier || '1';
+    document.getElementById('f-statut').value = p.statut || 'a-contacter';
+    document.getElementById('f-notes').value = p.notes || '';
+    document.getElementById('f-next').value = p.next_contact || '';
+    document.getElementById('f-kits').value = p.kits || 15;
+    btnDel.style.display = 'block';
+  } else {
+    document.getElementById('modal-title').textContent = 'Nouveau prospect';
+    ['f-nom','f-ville','f-tel','f-email','f-contact','f-volume','f-notes','f-next'].forEach(id => document.getElementById(id).value = '');
+    document.getElementById('f-tier').value = '1';
+    document.getElementById('f-statut').value = 'a-contacter';
+    document.getElementById('f-kits').value = 15;
+    btnDel.style.display = 'none';
+  }
+  document.getElementById('modal').classList.add('open');
+}
+
+function closeModal() {
+  document.getElementById('modal').classList.remove('open');
+  editingId = null;
+}
+
+async function saveProspect() {
+  const data = {
+    nom: document.getElementById('f-nom').value,
+    ville: document.getElementById('f-ville').value,
+    tel: document.getElementById('f-tel').value,
+    email: document.getElementById('f-email').value,
+    contact: document.getElementById('f-contact').value,
+    volume: document.getElementById('f-volume').value,
+    tier: document.getElementById('f-tier').value,
+    statut: document.getElementById('f-statut').value,
+    notes: document.getElementById('f-notes').value,
+    next_contact: document.getElementById('f-next').value || null,
+    kits: parseInt(document.getElementById('f-kits').value) || 15
+  };
+  if (!data.nom) return;
+
+  if (editingId) {
+    await sb.from('prospects').update(data).eq('id', editingId);
+  } else {
+    await sb.from('prospects').insert([data]);
+  }
+  closeModal();
+  showToast('Enregistré');
+}
+
+async function deleteProspect() {
+  if (!editingId) return;
+  if (confirm('Supprimer ce prospect ?')) {
+    await sb.from('prospects').delete().eq('id', editingId);
+    closeModal();
+    showToast('Supprimé');
+  }
+}
+
+// ── TABS ──────────────────────────────────────────────────────────
+function switchTab(name, el) {
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
+  document.getElementById('panel-' + name).classList.add('active');
+  el.classList.add('active');
+}
+
+// ── TEMPLATES ─────────────────────────────────────────────────────
+function copyTemplate(id, btn) {
+  navigator.clipboard.writeText(document.getElementById(id).textContent).then(() => {
+    btn.textContent = '✓ Copié !';
+    btn.classList.add('copied');
+    setTimeout(() => { btn.textContent = '📋 Copier'; btn.classList.remove('copied'); }, 2000);
+  });
+}
+
+function copySql() {
+  navigator.clipboard.writeText(SQL_CREATE).then(() => showToast('SQL copié !'));
+}
+
+// ── TOAST ─────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2500);
+}
+
+// ── MODAL CLOSE ON OVERLAY ────────────────────────────────────────
+document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+
+// ── AUTO-CONNECT ──────────────────────────────────────────────────
+const DEFAULT_URL = 'https://roborjswoxzcuwvpahml.supabase.co';
+const DEFAULT_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InJvYm9yanN3b3h6Y3V3dnBhaG1sIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzE1Mjc3NDEsImV4cCI6MjA4NzEwMzc0MX0.aUGNPM190LLzOuAYg_UstATPb9W7kI0WL5H2WAytUIs';
+
+const savedUrl = localStorage.getItem('sb_url') || DEFAULT_URL;
+const savedKey = localStorage.getItem('sb_key') || DEFAULT_KEY;
+document.getElementById('sb-url').value = savedUrl;
+document.getElementById('sb-key').value = savedKey;
+connectSupabase();
+</script>
+</body>
+</html>
