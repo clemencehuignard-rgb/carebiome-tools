@@ -1,0 +1,1627 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Étude de Marché — Kit de Suivi du Microbiote pour les 50+</title>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap');
+
+        :root {
+            --primary: #1B2A4A;
+            --accent: #00B4D8;
+            --accent2: #0077B6;
+            --accent3: #90E0EF;
+            --success: #06D6A0;
+            --warning: #FFD166;
+            --danger: #EF476F;
+            --bg: #F8FAFC;
+            --card: #FFFFFF;
+            --text: #1E293B;
+            --text-light: #64748B;
+            --border: #E2E8F0;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Inter', -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            line-height: 1.6;
+        }
+
+        /* HERO */
+        .hero {
+            background: linear-gradient(135deg, var(--primary) 0%, #0A1628 100%);
+            color: white;
+            padding: 80px 60px;
+            position: relative;
+            overflow: hidden;
+        }
+        .hero::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -20%;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(0,180,216,0.15) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero::after {
+            content: '';
+            position: absolute;
+            bottom: -30%;
+            left: -10%;
+            width: 400px;
+            height: 400px;
+            background: radial-gradient(circle, rgba(6,214,160,0.1) 0%, transparent 70%);
+            border-radius: 50%;
+        }
+        .hero h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 12px;
+            position: relative;
+            z-index: 1;
+            letter-spacing: -1px;
+        }
+        .hero h1 span { color: var(--accent); }
+        .hero .subtitle {
+            font-size: 1.3rem;
+            font-weight: 300;
+            opacity: 0.85;
+            position: relative;
+            z-index: 1;
+            max-width: 700px;
+        }
+        .hero .badge {
+            display: inline-block;
+            background: rgba(0,180,216,0.2);
+            border: 1px solid rgba(0,180,216,0.4);
+            color: var(--accent3);
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 500;
+            margin-bottom: 20px;
+            position: relative;
+            z-index: 1;
+        }
+
+        /* LAYOUT */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 40px;
+        }
+
+        section {
+            padding: 60px 0;
+        }
+
+        .section-title {
+            font-size: 1.8rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+            letter-spacing: -0.5px;
+        }
+        .section-subtitle {
+            font-size: 1rem;
+            color: var(--text-light);
+            margin-bottom: 40px;
+        }
+
+        /* CARDS */
+        .card {
+            background: var(--card);
+            border-radius: 16px;
+            padding: 32px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.06), 0 4px 12px rgba(0,0,0,0.04);
+            border: 1px solid var(--border);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+        .card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.08);
+        }
+
+        /* KPI ROW */
+        .kpi-row {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+            margin: -60px 0 40px;
+            position: relative;
+            z-index: 10;
+        }
+        .kpi-card {
+            background: white;
+            border-radius: 16px;
+            padding: 28px 24px;
+            text-align: center;
+            box-shadow: 0 4px 24px rgba(0,0,0,0.08);
+            border: 1px solid var(--border);
+        }
+        .kpi-value {
+            font-size: 2.4rem;
+            font-weight: 800;
+            color: var(--accent2);
+            line-height: 1.1;
+        }
+        .kpi-value.green { color: var(--success); }
+        .kpi-value.orange { color: #F59E0B; }
+        .kpi-value.pink { color: var(--danger); }
+        .kpi-label {
+            font-size: 0.85rem;
+            color: var(--text-light);
+            margin-top: 8px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        /* GRID LAYOUTS */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 32px;
+        }
+        .grid-3 {
+            display: grid;
+            grid-template-columns: 1fr 1fr 1fr;
+            gap: 24px;
+        }
+
+        /* CHART CONTAINERS */
+        .chart-container {
+            position: relative;
+            height: 350px;
+            width: 100%;
+        }
+        .chart-container-sm {
+            position: relative;
+            height: 280px;
+            width: 100%;
+        }
+
+        .card h3 {
+            font-size: 1.1rem;
+            font-weight: 600;
+            color: var(--primary);
+            margin-bottom: 20px;
+        }
+
+        /* COMPETITOR TABLE */
+        .competitor-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0;
+            font-size: 0.9rem;
+        }
+        .competitor-table thead th {
+            background: var(--primary);
+            color: white;
+            padding: 14px 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+        .competitor-table thead th:first-child { border-radius: 10px 0 0 0; }
+        .competitor-table thead th:last-child { border-radius: 0 10px 0 0; }
+        .competitor-table tbody td {
+            padding: 14px 16px;
+            border-bottom: 1px solid var(--border);
+            vertical-align: middle;
+        }
+        .competitor-table tbody tr:hover { background: #F1F5F9; }
+        .competitor-table tbody tr:last-child td { border-bottom: none; }
+        .competitor-table tbody tr:last-child td:first-child { border-radius: 0 0 0 10px; }
+        .competitor-table tbody tr:last-child td:last-child { border-radius: 0 0 10px 0; }
+
+        .tag {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 12px;
+            font-size: 0.75rem;
+            font-weight: 600;
+        }
+        .tag-blue { background: #DBEAFE; color: #1D4ED8; }
+        .tag-green { background: #D1FAE5; color: #065F46; }
+        .tag-orange { background: #FEF3C7; color: #92400E; }
+        .tag-purple { background: #EDE9FE; color: #5B21B6; }
+        .tag-red { background: #FEE2E2; color: #991B1B; }
+
+        /* SWOT */
+        .swot-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        .swot-card {
+            border-radius: 14px;
+            padding: 28px;
+        }
+        .swot-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            margin-bottom: 14px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .swot-card ul {
+            list-style: none;
+            padding: 0;
+        }
+        .swot-card li {
+            padding: 6px 0;
+            font-size: 0.9rem;
+            padding-left: 20px;
+            position: relative;
+        }
+        .swot-card li::before {
+            content: '›';
+            position: absolute;
+            left: 4px;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+        .swot-s { background: #ECFDF5; border: 1px solid #A7F3D0; }
+        .swot-s h4 { color: #065F46; }
+        .swot-s li::before { color: #059669; }
+        .swot-w { background: #FEF2F2; border: 1px solid #FECACA; }
+        .swot-w h4 { color: #991B1B; }
+        .swot-w li::before { color: #DC2626; }
+        .swot-o { background: #EFF6FF; border: 1px solid #BFDBFE; }
+        .swot-o h4 { color: #1E40AF; }
+        .swot-o li::before { color: #2563EB; }
+        .swot-t { background: #FFFBEB; border: 1px solid #FDE68A; }
+        .swot-t h4 { color: #92400E; }
+        .swot-t li::before { color: #D97706; }
+
+        /* BUSINESS MODEL */
+        .model-card {
+            text-align: center;
+            padding: 36px 24px;
+        }
+        .model-icon {
+            width: 56px;
+            height: 56px;
+            border-radius: 14px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 16px;
+            font-size: 1.6rem;
+        }
+        .model-card h4 {
+            font-size: 1rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 8px;
+        }
+        .model-card p {
+            font-size: 0.85rem;
+            color: var(--text-light);
+        }
+        .model-price {
+            font-size: 1.5rem;
+            font-weight: 800;
+            color: var(--accent2);
+            margin: 12px 0;
+        }
+
+        /* TIMELINE */
+        .timeline {
+            display: flex;
+            gap: 0;
+            margin-top: 20px;
+        }
+        .timeline-step {
+            flex: 1;
+            position: relative;
+            padding: 20px;
+            text-align: center;
+        }
+        .timeline-step::before {
+            content: '';
+            position: absolute;
+            top: 38px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: var(--accent3);
+        }
+        .timeline-step:first-child::before { left: 50%; }
+        .timeline-step:last-child::before { right: 50%; }
+        .timeline-dot {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: var(--accent);
+            margin: 0 auto 16px;
+            position: relative;
+            z-index: 2;
+            border: 3px solid white;
+            box-shadow: 0 0 0 3px var(--accent);
+        }
+        .timeline-step h5 {
+            font-size: 0.85rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 6px;
+        }
+        .timeline-step p {
+            font-size: 0.78rem;
+            color: var(--text-light);
+        }
+        .timeline-phase {
+            font-size: 0.7rem;
+            font-weight: 700;
+            color: var(--accent2);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 4px;
+        }
+
+        /* PROJECTIONS TABLE */
+        .proj-table {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 0.9rem;
+            margin-top: 20px;
+        }
+        .proj-table th {
+            padding: 12px 16px;
+            text-align: right;
+            font-weight: 600;
+            color: var(--text-light);
+            font-size: 0.8rem;
+            text-transform: uppercase;
+            border-bottom: 2px solid var(--primary);
+        }
+        .proj-table th:first-child { text-align: left; }
+        .proj-table td {
+            padding: 12px 16px;
+            text-align: right;
+            border-bottom: 1px solid var(--border);
+        }
+        .proj-table td:first-child {
+            text-align: left;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        .proj-table tr:last-child td {
+            font-weight: 700;
+            color: var(--accent2);
+            font-size: 1rem;
+            border-top: 2px solid var(--primary);
+            border-bottom: none;
+        }
+
+        /* DIFFERENCIATEURS */
+        .diff-list {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 16px;
+        }
+        .diff-item {
+            display: flex;
+            gap: 14px;
+            align-items: flex-start;
+            padding: 16px;
+            background: #F8FAFC;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+        }
+        .diff-icon {
+            width: 40px;
+            height: 40px;
+            border-radius: 10px;
+            background: linear-gradient(135deg, var(--accent), var(--accent2));
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+            font-size: 1.1rem;
+        }
+        .diff-item h5 {
+            font-size: 0.9rem;
+            font-weight: 700;
+            color: var(--primary);
+            margin-bottom: 4px;
+        }
+        .diff-item p {
+            font-size: 0.8rem;
+            color: var(--text-light);
+        }
+
+        /* FOOTER */
+        .footer {
+            background: var(--primary);
+            color: white;
+            padding: 40px 60px;
+            text-align: center;
+        }
+        .footer p { opacity: 0.6; font-size: 0.85rem; }
+
+        /* SEPARATOR */
+        .sep {
+            border: none;
+            border-top: 1px solid var(--border);
+            margin: 0;
+        }
+
+        /* PRINT STYLES */
+        @media print {
+            .hero { padding: 40px; }
+            .hero h1 { font-size: 2rem; }
+            section { padding: 30px 0; }
+            .card { break-inside: avoid; }
+            .kpi-row { margin-top: -30px; }
+        }
+    </style>
+</head>
+<body>
+
+<!-- ======== HERO ======== -->
+<div class="hero">
+    <div class="container">
+        <div class="badge">ÉTUDE DE MARCHÉ 2026</div>
+        <h1>Kit de Suivi du <span>Microbiote</span><br>pour les 50+</h1>
+        <p class="subtitle">Analyse du marché du testing microbiome à domicile — Opportunité, concurrence, modèle économique et projections financières.</p>
+    </div>
+</div>
+
+<!-- ======== KPIs ======== -->
+<div class="container">
+    <div class="kpi-row">
+        <div class="kpi-card">
+            <div class="kpi-value">2,1 Md€</div>
+            <div class="kpi-label">Marché mondial testing 2030</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value green">+10,5%</div>
+            <div class="kpi-label">CAGR 2025–2030</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value orange">27 M</div>
+            <div class="kpi-label">Français de 50+ ans</div>
+        </div>
+        <div class="kpi-card">
+            <div class="kpi-value pink">62%</div>
+            <div class="kpi-label">Intéressés prévention vieillissement*</div>
+        </div>
+    </div>
+</div>
+
+<!-- ======== MARCHÉ GLOBAL ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">1. Taille et croissance du marché</div>
+        <p class="section-subtitle">Le marché mondial du diagnostic microbiome connaît une croissance exponentielle, porté par la médecine personnalisée et la prévention.</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>Marché mondial du testing microbiome (Md€)</h3>
+                <div class="chart-container">
+                    <canvas id="chartMarketSize"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Répartition géographique du marché 2025</h3>
+                <div class="chart-container">
+                    <canvas id="chartGeoSplit"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== CIBLE 50+ ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">2. La cible 50+ : un marché sous-exploité</div>
+        <p class="section-subtitle">Les 50+ représentent le segment le plus pertinent cliniquement et le plus solvable économiquement. À cet âge, le microbiote diverge : il s'enrichit lors d'un vieillissement sain, mais se dégrade en cas de pathologies — d'où l'importance du suivi préventif.</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>Microbiote et âge : deux trajectoires opposées</h3>
+                <p style="font-size: 0.85rem; color: var(--text-light); margin-bottom: 16px; font-style: italic;">
+                    ⚠️ Note scientifique : La diversité microbienne (Shannon) <strong>augmente</strong> chez les personnes âgées en bonne santé, mais <strong>diminue</strong> chez celles avec pathologies. Le ratio F/B suit la tendance inverse. Source : Nature Aging 2022, BMC Microbiology 2009.
+                </p>
+                <div class="chart-container">
+                    <canvas id="chartDiversity"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Pathologies liées au microbiote chez les 50+</h3>
+                <div class="chart-container">
+                    <canvas id="chartPatho"></canvas>
+                </div>
+            </div>
+        </div>
+
+        <div class="card" style="margin-top: 32px; border-left: 4px solid var(--accent2); background: #EFF6FF;">
+            <h4 style="color: var(--primary); margin-bottom: 14px; font-size: 0.95rem;">Données scientifiques de référence</h4>
+            <ul style="list-style: none; display: flex; flex-direction: column; gap: 10px;">
+                <li style="font-size: 0.82rem; color: var(--text-light); padding-left: 16px; border-left: 2px solid var(--accent);">
+                    <strong style="color:var(--primary);">Shannon diversity</strong> augmente chez les healthy agers (+15% entre 50 et 80 ans), chute chez les fragiles — <em>Nature Aging 2022</em> (n = 9 012, cohorte longitudinale 10 ans)
+                </li>
+                <li style="font-size: 0.82rem; color: var(--text-light); padding-left: 16px; border-left: 2px solid var(--accent2);">
+                    <strong style="color:var(--primary);">Ratio Firmicutes/Bacteroidetes</strong> : courbe en cloche adulte → vieillissement (10,9 → 0,6 après 65 ans) — <em>BMC Microbiology 2009</em>
+                </li>
+                <li style="font-size: 0.82rem; color: var(--text-light); padding-left: 16px; border-left: 2px solid var(--success);">
+                    <strong style="color:var(--primary);">Akkermansia muciniphila</strong> : −60% chez les 70+ fragiles vs. centenaires en bonne santé — <em>Cell Host &amp; Microbe 2019</em>
+                </li>
+                <li style="font-size: 0.82rem; color: var(--text-light); padding-left: 16px; border-left: 2px solid var(--warning);">
+                    <strong style="color:var(--primary);">Faecalibacterium prausnitzii</strong> : marqueur protecteur de l'immunosénescence, corrélé à la longévité en bonne santé — <em>Gut 2021</em>
+                </li>
+            </ul>
+        </div>
+
+        <div class="grid-3" style="margin-top: 20px;">
+            <div class="card" style="text-align:center; border-top: 3px solid var(--accent);">
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--accent2);">62%</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top:4px;">des 60+ s'intéressent à la prévention du vieillissement (CREDOC 2016)</div>
+            </div>
+            <div class="card" style="text-align:center; border-top: 3px solid var(--success);">
+                <div style="font-size: 2.2rem; font-weight: 800; color: var(--success);">≈ 4 000 €/an</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top:4px;">dépenses santé des 75+ en France (DREES 2025)</div>
+            </div>
+            <div class="card" style="text-align:center; border-top: 3px solid var(--warning);">
+                <div style="font-size: 2.2rem; font-weight: 800; color: #F59E0B;">+7,6%</div>
+                <div style="font-size: 0.85rem; color: var(--text-light); margin-top:4px;">croissance annuelle Silver Economy (130 Md€ en 2030)</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== CONCURRENCE ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">3. Paysage concurrentiel</div>
+        <p class="section-subtitle">Benchmark des principaux acteurs du testing microbiome en Europe et à l'international.</p>
+
+        <div class="card" style="overflow-x:auto;">
+            <table class="competitor-table">
+                <thead>
+                    <tr>
+                        <th>Acteur</th>
+                        <th>Pays</th>
+                        <th>Technologie</th>
+                        <th>Prix</th>
+                        <th>Cible</th>
+                        <th>Positionnement</th>
+                        <th>Levée de fonds</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>Nahibu</strong></td>
+                        <td>🇫🇷 France</td>
+                        <td><span class="tag tag-blue">16S rRNA</span></td>
+                        <td>189 €</td>
+                        <td>Grand public</td>
+                        <td>Bien-être, nutrition</td>
+                        <td>~2,1 M€</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Luxia Scientific</strong></td>
+                        <td>🇫🇷 France</td>
+                        <td><span class="tag tag-purple">qPCR + 16S</span></td>
+                        <td>~200 €</td>
+                        <td>Médecins / patients</td>
+                        <td>Médical, IBS</td>
+                        <td>BPI/Région</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ZOE</strong></td>
+                        <td>🇬🇧 UK</td>
+                        <td><span class="tag tag-green">Shotgun + sang</span></td>
+                        <td>259 £ + abon.</td>
+                        <td>Health-conscious</td>
+                        <td>Nutrition personnalisée</td>
+                        <td>133 M$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Viome</strong></td>
+                        <td>🇺🇸 USA</td>
+                        <td><span class="tag tag-orange">Métatranscript.</span></td>
+                        <td>199-249 $</td>
+                        <td>Biohackers</td>
+                        <td>Suppléments personnalisés</td>
+                        <td>302 M$</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Biomesight</strong></td>
+                        <td>🇬🇧 UK</td>
+                        <td><span class="tag tag-blue">16S rRNA</span></td>
+                        <td>159 £</td>
+                        <td>Passionnés santé</td>
+                        <td>Data-driven, communauté</td>
+                        <td>Bootstrap</td>
+                    </tr>
+                    <tr>
+                        <td><strong>Atlas Biomed</strong></td>
+                        <td>🇬🇧 UK</td>
+                        <td><span class="tag tag-blue">16S rRNA</span></td>
+                        <td>~180 $</td>
+                        <td>Grand public</td>
+                        <td>Microbiome + génétique</td>
+                        <td>N/C</td>
+                    </tr>
+                    <tr>
+                        <td><strong>BIOMES NGS</strong></td>
+                        <td>🇩🇪 Allemagne</td>
+                        <td><span class="tag tag-blue">16S rRNA</span></td>
+                        <td>79-99 €</td>
+                        <td>Grand public</td>
+                        <td>Santé intestinale, wellness</td>
+                        <td>N/C</td>
+                    </tr>
+                    <tr style="background: #F0FDFA;">
+                        <td><strong>🟢 Notre projet</strong></td>
+                        <td>🇫🇷 France</td>
+                        <td><span class="tag tag-green">16S / Shotgun</span></td>
+                        <td>169 € + abon.</td>
+                        <td><strong>50+ ans</strong></td>
+                        <td><strong>Suivi longitudinal, vieillissement</strong></td>
+                        <td>Seed 1,5 M€</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="grid-2" style="margin-top: 32px;">
+            <div class="card">
+                <h3>Positionnement prix vs profondeur d'analyse</h3>
+                <div class="chart-container">
+                    <canvas id="chartPositioning"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Part de marché estimée (Europe, 2025)</h3>
+                <div class="chart-container">
+                    <canvas id="chartMarketShare"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== NOTRE PRODUIT ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">4. Notre produit : suivi longitudinal du microbiote</div>
+        <p class="section-subtitle">Un parcours en 5 étapes pour transformer un test ponctuel en suivi de santé continu et personnalisé.</p>
+
+        <!-- Journey 5 étapes -->
+        <div class="card" style="margin-bottom:24px;">
+            <h3 style="color:var(--primary);margin-bottom:20px;font-size:1rem;text-transform:uppercase;letter-spacing:1px;">Le parcours client</h3>
+            <div style="display:flex;align-items:flex-start;gap:0;position:relative;">
+                <!-- Barre de fond -->
+                <div style="position:absolute;top:32px;left:calc(10% + 32px);right:calc(10% + 32px);height:4px;background:linear-gradient(90deg,#00B4D8,#0077B6);border-radius:2px;z-index:0;"></div>
+                <!-- Étapes -->
+                <div style="flex:1;text-align:center;position:relative;z-index:1;padding:0 8px;">
+                    <div style="width:64px;height:64px;border-radius:50%;background:#00B4D8;color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;box-shadow:0 4px 12px rgba(0,180,216,0.35);">📦</div>
+                    <div style="font-weight:700;color:var(--primary);font-size:0.85rem;margin-bottom:4px;">Kit reçu</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);line-height:1.4;">Starter Kit 169€<br>Prélèvement à domicile</div>
+                </div>
+                <div style="flex:1;text-align:center;position:relative;z-index:1;padding:0 8px;">
+                    <div style="width:64px;height:64px;border-radius:50%;background:#0094B3;color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;box-shadow:0 4px 12px rgba(0,148,179,0.35);">🧬</div>
+                    <div style="font-weight:700;color:var(--primary);font-size:0.85rem;margin-bottom:4px;">Analyse labo</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);line-height:1.4;">Séquençage NGS<br>Partenaire Biofortis</div>
+                </div>
+                <div style="flex:1;text-align:center;position:relative;z-index:1;padding:0 8px;">
+                    <div style="width:64px;height:64px;border-radius:50%;background:#0077B6;color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;box-shadow:0 4px 12px rgba(0,119,182,0.35);">📊</div>
+                    <div style="font-weight:700;color:var(--primary);font-size:0.85rem;margin-bottom:4px;">Rapport personnalisé</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);line-height:1.4;">Score diversité<br>Biomarqueurs 50+</div>
+                </div>
+                <div style="flex:1;text-align:center;position:relative;z-index:1;padding:0 8px;">
+                    <div style="width:64px;height:64px;border-radius:50%;background:#005F92;color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;box-shadow:0 4px 12px rgba(0,95,146,0.35);">📱</div>
+                    <div style="font-weight:700;color:var(--primary);font-size:0.85rem;margin-bottom:4px;">Application</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);line-height:1.4;">Recommandations<br>nutrition & mode de vie</div>
+                </div>
+                <div style="flex:1;text-align:center;position:relative;z-index:1;padding:0 8px;">
+                    <div style="width:64px;height:64px;border-radius:50%;background:#06D6A0;color:white;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:1.4rem;box-shadow:0 4px 12px rgba(6,214,160,0.35);">🔄</div>
+                    <div style="font-weight:700;color:var(--primary);font-size:0.85rem;margin-bottom:4px;">Suivi trimestriel</div>
+                    <div style="font-size:0.75rem;color:var(--text-light);line-height:1.4;">Abonnement 29€/mois<br>Nouveau kit tous les 3 mois</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- App features -->
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:16px;">
+            <div class="card" style="background:linear-gradient(135deg,var(--primary) 0%,#0A1628 100%);color:white;">
+                <h3 style="font-size:0.95rem;margin-bottom:16px;color:var(--accent);">Application mobile</h3>
+                <div style="display:flex;flex-direction:column;gap:10px;">
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,180,216,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">📈</div>
+                        <div style="font-size:0.85rem;line-height:1.4;">Tableau de bord personnel avec évolution du score de diversité</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,180,216,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🥗</div>
+                        <div style="font-size:0.85rem;line-height:1.4;">Recommandations nutrition personnalisées (fibres, probiotiques, régime méditerranéen)</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,180,216,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🏃</div>
+                        <div style="font-size:0.85rem;line-height:1.4;">Suivi activité physique et sommeil corrélé au microbiote</div>
+                    </div>
+                    <div style="display:flex;align-items:center;gap:10px;">
+                        <div style="width:32px;height:32px;border-radius:8px;background:rgba(0,180,216,0.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;">🔔</div>
+                        <div style="font-size:0.85rem;line-height:1.4;">Rappels intelligents pour commandes de kits et consultations</div>
+                    </div>
+                </div>
+            </div>
+            <div class="card">
+                <h3 style="font-size:0.95rem;margin-bottom:16px;color:var(--primary);">Offres disponibles</h3>
+                <div style="display:flex;flex-direction:column;gap:12px;">
+                    <div style="border:2px solid var(--accent);border-radius:12px;padding:14px 16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="font-weight:700;color:var(--primary);">Starter Kit</span>
+                            <span style="font-size:1.4rem;font-weight:800;color:var(--accent);">169 €</span>
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--text-light);">Kit de prélèvement + analyse NGS + rapport + accès app 3 mois</div>
+                    </div>
+                    <div style="border:2px solid var(--success);border-radius:12px;padding:14px 16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="font-weight:700;color:var(--primary);">Suivi Essentiel</span>
+                            <span style="font-size:1.4rem;font-weight:800;color:var(--success);">29 €<span style="font-size:0.8rem;font-weight:500;">/mois</span></span>
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--text-light);">1 kit trimestriel inclus + recommandations + suivi app</div>
+                    </div>
+                    <div style="border:2px solid var(--warning);border-radius:12px;padding:14px 16px;">
+                        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:6px;">
+                            <span style="font-weight:700;color:var(--primary);">Suivi Premium</span>
+                            <span style="font-size:1.4rem;font-weight:800;color:#E89B00;">69 €<span style="font-size:0.8rem;font-weight:500;">/mois</span></span>
+                        </div>
+                        <div style="font-size:0.8rem;color:var(--text-light);">2 kits trimestriels + consultation diét. + accès données brutes</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== ZOOM MARCHÉ US ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">5. Zoom marché US — Référence mondiale & best practices</div>
+        <p class="section-subtitle">Le marché américain est le plus mature : il offre des modèles éprouvés de commercialisation et des benchmarks financiers exploitables pour le lancement européen.</p>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:24px;">
+            <!-- Chiffres clés US -->
+            <div class="card" style="background:linear-gradient(135deg,#1B2A4A 0%,#0A1628 100%);color:white;">
+                <h3 style="color:var(--accent);font-size:1rem;margin-bottom:20px;text-transform:uppercase;letter-spacing:1px;">Chiffres clés — Marché US</h3>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #00B4D8;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">🇺🇸</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">Marché microbiome US 2024</div>
+                            <div style="font-size:1.1rem;font-weight:800;">~3,2 Mds $</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">CAGR +18% / an</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #06D6A0;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">👥</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">Adultes 50+ aux US</div>
+                            <div style="font-size:1.1rem;font-weight:800;">110 millions</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">Segment le plus dépensier en santé préventive</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #FFD166;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">💰</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">Leader viome — ARR</div>
+                            <div style="font-size:1.1rem;font-weight:800;">> 100 M$</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">Levée totale 175 M$ — Valorisation ~1 Md$</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #EF476F;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">📦</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">DTC microbiome kits</div>
+                            <div style="font-size:1.1rem;font-weight:800;">+40% croissance annuelle</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">Post-COVID : boom bien-être digital & préventif</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #7B61FF;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">🏥</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">Canaux B2B2C émergents</div>
+                            <div style="font-size:1.1rem;font-weight:800;">Assureurs + RH corporates</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">United Health, CVS Health intègrent microbiome dans les offres bien-être</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #F97316;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">📱</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">Rétention abonnés — top acteurs</div>
+                            <div style="font-size:1.1rem;font-weight:800;">70–80% à 12 mois</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">Grâce au coaching app + personnalisation IA</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:12px;background:rgba(255,255,255,0.05);border-radius:10px;border-left:3px solid #00B4D8;">
+                        <span style="font-size:1.5rem;flex-shrink:0;">🔬</span>
+                        <div>
+                            <div style="font-weight:700;color:var(--accent3);font-size:0.85rem;">Intégration clinique US</div>
+                            <div style="font-size:1.1rem;font-weight:800;">+300 hôpitaux partenaires</div>
+                            <div style="font-size:0.75rem;opacity:0.7;">Cleveland Clinic, Mayo Clinic — prescriptions via portail santé</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Best practices -->
+            <div class="card">
+                <h3 style="font-size:1rem;margin-bottom:20px;color:var(--primary);text-transform:uppercase;letter-spacing:1px;">Best practices à répliquer</h3>
+                <div style="display:flex;flex-direction:column;gap:14px;">
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F0FDF9;border-radius:10px;border-left:3px solid var(--success);">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--success);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">1</div>
+                        <div>
+                            <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">Onboarding médical fort</div>
+                            <div style="font-size:0.8rem;color:var(--text-light);">Questionnaire de santé détaillé à l'inscription + validation par professionnel de santé pour crédibiliser les recommandations</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#EFF6FF;border-radius:10px;border-left:3px solid var(--accent2);">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--accent2);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">2</div>
+                        <div>
+                            <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">Modèle freemium d'entrée</div>
+                            <div style="font-size:0.8rem;color:var(--text-light);">Kit découverte à prix abordable (69–99$) pour acquérir une base large, puis conversion vers abonnement premium via valeur démontrée</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#FFF7ED;border-radius:10px;border-left:3px solid #F97316;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:#F97316;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">3</div>
+                        <div>
+                            <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">App comme moteur de rétention</div>
+                            <div style="font-size:0.8rem;color:var(--text-light);">Notifications hebdomadaires, insights personnalisés, gamification du suivi santé : l'app réduit le churn de 30 à 40%</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#FFF5F5;border-radius:10px;border-left:3px solid var(--danger);">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--danger);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">4</div>
+                        <div>
+                            <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">Partenariats KOL santé</div>
+                            <div style="font-size:0.8rem;color:var(--text-light);">Collaboration avec médecins influenceurs, podcasts santé, associations de patients 50+ pour légitimité et acquisition organique</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F5F3FF;border-radius:10px;border-left:3px solid #7B61FF;">
+                        <div style="width:32px;height:32px;border-radius:50%;background:#7B61FF;color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">5</div>
+                        <div>
+                            <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">Distribution B2B2C assureurs</div>
+                            <div style="font-size:0.8rem;color:var(--text-light);">Intégration dans les programmes de prévention des assureurs santé : flux d'acquisition massifs, CAC divisé par 3 vs acquisition digitale directe</div>
+                        </div>
+                    </div>
+                    <div style="display:flex;align-items:flex-start;gap:12px;padding:14px;background:#F0FDF9;border-radius:10px;border-left:3px solid var(--success);">
+                        <div style="width:32px;height:32px;border-radius:50%;background:var(--success);color:white;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:0.85rem;flex-shrink:0;">6</div>
+                        <div>
+                            <div style="font-weight:700;color:var(--primary);font-size:0.9rem;margin-bottom:4px;">Data propriétaire = valeur actif</div>
+                            <div style="font-size:0.8rem;color:var(--text-light);">Base de données longitudinales du microbiote 50+ = actif unique, valorisé dans les levées de fonds et licences pharma/recherche</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== DIFFÉRENCIATEURS ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">6. Nos différenciateurs clés</div>
+        <p class="section-subtitle">Aucun acteur ne cible spécifiquement le vieillissement en bonne santé via le suivi longitudinal du microbiote.</p>
+
+        <div class="card">
+            <div class="diff-list">
+                <div class="diff-item">
+                    <div class="diff-icon">🎯</div>
+                    <div>
+                        <h5>Niche 50+ inexploitée</h5>
+                        <p>Premier kit spécialisé pour le vieillissement en bonne santé avec biomarqueurs dédiés (inflammaging, sarcopénie, immunosénescence).</p>
+                    </div>
+                </div>
+                <div class="diff-item">
+                    <div class="diff-icon">📈</div>
+                    <div>
+                        <h5>Suivi longitudinal</h5>
+                        <p>Modèle par abonnement avec analyses trimestrielles pour suivre l'évolution du microbiote et mesurer l'impact des interventions.</p>
+                    </div>
+                </div>
+                <div class="diff-item">
+                    <div class="diff-icon">🩺</div>
+                    <div>
+                        <h5>Caution médicale</h5>
+                        <p>Partenariats avec gériatres, gastro-entérologues et nutritionnistes. Recommandations validées scientifiquement.</p>
+                    </div>
+                </div>
+                <div class="diff-item">
+                    <div class="diff-icon">🤝</div>
+                    <div>
+                        <h5>Distribution B2B2C</h5>
+                        <p>Canal Silver Economy : mutuelles seniors, résidences services, pharmacies, médecins traitants.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== SWOT ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">7. Analyse SWOT</div>
+        <p class="section-subtitle">Vue synthétique des forces, faiblesses, opportunités et menaces du projet.</p>
+
+        <div class="swot-grid">
+            <div class="swot-card swot-s">
+                <h4>💪 Forces</h4>
+                <ul>
+                    <li>Positionnement niche unique (50+, vieillissement)</li>
+                    <li>Modèle récurrent (abonnement, suivi longitudinal)</li>
+                    <li>Marché français sous-pénétré vs US/UK</li>
+                    <li>Forte valeur perçue santé préventive</li>
+                    <li>UX simplifiée pour cible senior</li>
+                </ul>
+            </div>
+            <div class="swot-card swot-w">
+                <h4>⚠️ Faiblesses</h4>
+                <ul>
+                    <li>Besoin d'éducation du marché</li>
+                    <li>Coût d'acquisition client élevé (50+)</li>
+                    <li>Dépendance à un laboratoire partenaire</li>
+                    <li>Pas encore de données propriétaires</li>
+                    <li>Cadre réglementaire IVDR contraignant</li>
+                </ul>
+            </div>
+            <div class="swot-card swot-o">
+                <h4>🚀 Opportunités</h4>
+                <ul>
+                    <li>Silver Economy en forte croissance (+7,6%/an, 130 Md€ en 2030)</li>
+                    <li>Prévention santé = priorité politique (Ma Santé 2022/2030)</li>
+                    <li>Remboursement potentiel futur par les mutuelles</li>
+                    <li>IA + microbiome = recommandations hyper-personnalisées</li>
+                    <li>Extension européenne rapide (DE, ES, IT)</li>
+                </ul>
+            </div>
+            <div class="swot-card swot-t">
+                <h4>🔥 Menaces</h4>
+                <ul>
+                    <li>Entrée de grands labos (Biomérieux, Eurofins)</li>
+                    <li>Scepticisme médical envers les tests DTC</li>
+                    <li>Évolution réglementaire restrictive</li>
+                    <li>Concurrents US/UK avec plus de moyens</li>
+                    <li>Risque de "gadgétisation" perçue</li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== BUSINESS MODEL ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">8. Modèle économique</div>
+        <p class="section-subtitle">Trois offres complémentaires pour maximiser la valeur vie client (LTV).</p>
+
+        <div class="grid-3">
+            <div class="card model-card" style="border-top: 3px solid var(--accent3);">
+                <div class="model-icon" style="background: #E0F2FE;">🔬</div>
+                <h4>Starter Kit</h4>
+                <div class="model-price">169 €</div>
+                <p>Analyse 16S rRNA complète.<br>Rapport personnalisé 50+ + recommandations alimentaires.</p>
+                <div style="margin-top:16px;">
+                    <span class="tag tag-blue">Test unique — Porte d'entrée</span>
+                </div>
+            </div>
+            <div class="card model-card" style="border-top: 3px solid var(--accent); transform: scale(1.03);">
+                <div class="model-icon" style="background: #CCFBF1;">📊</div>
+                <h4>Suivi Essentiel</h4>
+                <div class="model-price">29 €<span style="font-size:0.8rem;font-weight:400;color:var(--text-light);">/mois</span></div>
+                <p>2 analyses/an (shotgun).<br>Tableau de bord d'évolution + coaching nutritionnel personnalisé.</p>
+                <div style="margin-top:16px;">
+                    <span class="tag tag-green">Abonnement — Recommandé</span>
+                </div>
+            </div>
+            <div class="card model-card" style="border-top: 3px solid var(--accent2);">
+                <div class="model-icon" style="background: #EDE9FE;">🏥</div>
+                <h4>Premium Santé</h4>
+                <div class="model-price">69 €<span style="font-size:0.8rem;font-weight:400;color:var(--text-light);">/mois</span></div>
+                <p>4 analyses/an (shotgun avancé).<br>Consultation diététicien incluse + partage médecin traitant.</p>
+                <div style="margin-top:16px;">
+                    <span class="tag tag-purple">Abonnement Premium</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Projections financières -->
+        <div class="card" style="margin-top: 32px;">
+            <h3>Projections financières sur 5 ans</h3>
+            <div class="grid-2">
+                <div>
+                    <table class="proj-table">
+                        <thead>
+                            <tr>
+                                <th></th>
+                                <th>An 1</th>
+                                <th>An 2</th>
+                                <th>An 3</th>
+                                <th>An 4</th>
+                                <th>An 5</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Clients actifs</td>
+                                <td>500</td>
+                                <td>2 500</td>
+                                <td>8 000</td>
+                                <td>18 000</td>
+                                <td>35 000</td>
+                            </tr>
+                            <tr>
+                                <td>CA (k€)</td>
+                                <td>120</td>
+                                <td>780</td>
+                                <td>2 800</td>
+                                <td>7 200</td>
+                                <td>15 400</td>
+                            </tr>
+                            <tr>
+                                <td>Marge brute</td>
+                                <td>35%</td>
+                                <td>48%</td>
+                                <td>58%</td>
+                                <td>63%</td>
+                                <td>67%</td>
+                            </tr>
+                            <tr>
+                                <td>EBITDA (k€)</td>
+                                <td>-380</td>
+                                <td>-150</td>
+                                <td>420</td>
+                                <td>1 850</td>
+                                <td>4 600</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+                <div>
+                    <div class="chart-container-sm">
+                        <canvas id="chartRevenue"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== ROADMAP ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">9. Roadmap de lancement</div>
+        <p class="section-subtitle">Plan d'exécution sur 18 mois jusqu'à la mise sur le marché.</p>
+
+        <div class="card">
+            <div class="timeline">
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">Mois 1–3</div>
+                    <h5>Conception</h5>
+                    <p>R&D biomarqueurs, choix labo partenaire, prototypage kit</p>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">Mois 4–6</div>
+                    <h5>Validation</h5>
+                    <p>Étude pilote 100 utilisateurs, ajustement panel, dossier IVDR</p>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">Mois 7–10</div>
+                    <h5>Développement</h5>
+                    <p>Plateforme digitale, algorithmes IA, partenariats mutuelles</p>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">Mois 11–14</div>
+                    <h5>Pré-lancement</h5>
+                    <p>Bêta 500 users, itérations UX, stratégie marketing</p>
+                </div>
+                <div class="timeline-step">
+                    <div class="timeline-dot"></div>
+                    <div class="timeline-phase">Mois 15–18</div>
+                    <h5>Lancement</h5>
+                    <p>Go-to-market France, activation B2B2C, scaling</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<hr class="sep">
+
+<!-- ======== INVESTISSEMENT ======== -->
+<section>
+    <div class="container">
+        <div class="section-title">10. Besoin en financement</div>
+        <p class="section-subtitle">Utilisation du premier tour de financement (Seed).</p>
+
+        <div class="grid-2">
+            <div class="card">
+                <h3>Répartition du Seed Round — 1,5 M€</h3>
+                <div class="chart-container">
+                    <canvas id="chartFunding"></canvas>
+                </div>
+            </div>
+            <div class="card">
+                <h3>Indicateurs clés pour investisseurs</h3>
+                <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:8px;">
+                    <div style="padding:20px; background:#F0FDFA; border-radius:12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--accent2);">430 €</div>
+                        <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">LTV moyenne / client</div>
+                    </div>
+                    <div style="padding:20px; background:#FEF3C7; border-radius:12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:#D97706;">85 €</div>
+                        <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">CAC cible</div>
+                    </div>
+                    <div style="padding:20px; background:#EDE9FE; border-radius:12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:#7C3AED;">5x</div>
+                        <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">Ratio LTV / CAC</div>
+                    </div>
+                    <div style="padding:20px; background:#ECFDF5; border-radius:12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--success);">An 3</div>
+                        <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">Break-even prévu</div>
+                    </div>
+                    <div style="padding:20px; background:#FEE2E2; border-radius:12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:var(--danger);">18 mois</div>
+                        <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">Runway avec seed</div>
+                    </div>
+                    <div style="padding:20px; background:#DBEAFE; border-radius:12px; text-align:center;">
+                        <div style="font-size:1.6rem; font-weight:800; color:#2563EB;">72%</div>
+                        <div style="font-size:0.78rem; color:var(--text-light); margin-top:4px;">Taux de rétention cible (12 mois)</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<!-- ======== FOOTER ======== -->
+<div class="footer">
+    <p>Document confidentiel — Étude de marché Kit Microbiote 50+ — Février 2026</p>
+    <p style="margin-top: 8px; font-size: 0.75rem;">*Sources : Grand View Research 2025 (marché microbiome), MarketsandMarkets 2025, INSEE/INED 2025 (démographie), Bpifrance 2025 (Silver Economy), DREES 2025 (budget santé), CREDOC 2016 (prévention 60+), Crunchbase 2025-2026 (levées de fonds), Nature Aging 2022 & BMC Microbiology 2009 (données cliniques microbiote). Projections financières et unit economics : analyses internes.</p>
+</div>
+
+<!-- ======== CHARTS ======== -->
+<script>
+    // Couleurs
+    const colors = {
+        primary: '#1B2A4A',
+        accent: '#00B4D8',
+        accent2: '#0077B6',
+        accent3: '#90E0EF',
+        success: '#06D6A0',
+        warning: '#FFD166',
+        danger: '#EF476F',
+    };
+
+    // Defaults
+    Chart.defaults.font.family = "'Inter', sans-serif";
+    Chart.defaults.font.size = 12;
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.padding = 16;
+
+    // 1. Market Size
+    new Chart(document.getElementById('chartMarketSize'), {
+        type: 'bar',
+        data: {
+            labels: ['2021', '2022', '2023', '2024', '2025', '2026', '2027', '2028', '2029', '2030'],
+            datasets: [{
+                label: 'Marché mondial (Md€)',
+                data: [0.9, 1.1, 1.3, 1.5, 1.6, 1.7, 1.8, 1.9, 2.0, 2.1],
+                backgroundColor: function(ctx) {
+                    const chart = ctx.chart;
+                    const {ctx: c, chartArea} = chart;
+                    if (!chartArea) return colors.accent;
+                    const gradient = c.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                    gradient.addColorStop(0, colors.accent3);
+                    gradient.addColorStop(1, colors.accent2);
+                    return gradient;
+                },
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ctx.parsed.y + ' Md€'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { callback: v => v + ' Md€' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 2. Geo Split
+    new Chart(document.getElementById('chartGeoSplit'), {
+        type: 'doughnut',
+        data: {
+            labels: ['Amérique du Nord', 'Europe', 'Asie-Pacifique', 'Reste du monde'],
+            datasets: [{
+                data: [42, 28, 22, 8],
+                backgroundColor: [colors.accent2, colors.accent, colors.success, colors.warning],
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverOffset: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '62%',
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ctx.label + ' : ' + ctx.parsed + '%'
+                    }
+                }
+            }
+        }
+    });
+
+    // 3. Diversity with age — Sources : Nature Aging 2022, BMC Microbiology 2009, PMC 2024
+    // Shannon AUGMENTE chez healthy agers, DIMINUE chez les fragiles/malades
+    // F/B ratio : ↗ enfance → adulte, puis ↘ chez les âgés (0.4 → 10.9 → 0.6)
+    new Chart(document.getElementById('chartDiversity'), {
+        type: 'line',
+        data: {
+            labels: ['20 ans', '30 ans', '40 ans', '50 ans', '60 ans', '70 ans', '80 ans'],
+            datasets: [
+                {
+                    label: 'Shannon — Vieillissement sain ↗',
+                    data: [3.5, 3.6, 3.65, 3.7, 3.8, 3.9, 4.0],
+                    borderColor: colors.success,
+                    backgroundColor: 'rgba(6, 214, 160, 0.08)',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: colors.success,
+                    borderWidth: 3,
+                },
+                {
+                    label: 'Shannon — Fragilité / Pathologie ↘',
+                    data: [3.5, 3.5, 3.4, 3.2, 2.8, 2.4, 2.0],
+                    borderColor: colors.danger,
+                    backgroundColor: 'rgba(239, 71, 111, 0.06)',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: colors.danger,
+                    borderWidth: 3,
+                    borderDash: [5, 4],
+                },
+                {
+                    label: 'Ratio F/B (↗ adulte, ↘ âgé — BMC Micro 2009)',
+                    data: [1.5, 4.0, 8.0, 10.9, 7.0, 3.0, 0.6],
+                    borderColor: colors.accent2,
+                    backgroundColor: 'rgba(0, 119, 182, 0.06)',
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: colors.accent2,
+                    borderWidth: 2,
+                    borderDash: [3, 3],
+                    yAxisID: 'y1',
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 10 } } }
+            },
+            scales: {
+                y: {
+                    type: 'linear',
+                    position: 'left',
+                    title: { display: true, text: 'Indice Shannon', font: { size: 10 } },
+                    min: 1.5, max: 4.5,
+                    grid: { color: '#F1F5F9' }
+                },
+                y1: {
+                    type: 'linear',
+                    position: 'right',
+                    title: { display: true, text: 'Ratio F/B', font: { size: 10 } },
+                    min: 0, max: 14,
+                    grid: { drawOnChartArea: false }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 4. Pathologies
+    new Chart(document.getElementById('chartPatho'), {
+        type: 'bar',
+        data: {
+            labels: ['Troubles digestifs', 'Inflammation chronique', 'Déclin immunitaire', 'Diabète type 2', 'Déclin cognitif', 'Sarcopénie'],
+            datasets: [{
+                label: 'Prévalence chez les 50+ (%)',
+                data: [45, 38, 35, 28, 22, 18],
+                backgroundColor: [
+                    colors.danger,
+                    '#F97316',
+                    colors.warning,
+                    colors.accent,
+                    colors.accent2,
+                    colors.success
+                ],
+                borderRadius: 6,
+                borderSkipped: false,
+            }]
+        },
+        options: {
+            indexAxis: 'y',
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { display: false },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ctx.parsed.x + '% des 50+'
+                    }
+                }
+            },
+            scales: {
+                x: {
+                    beginAtZero: true,
+                    ticks: { callback: v => v + '%' },
+                    grid: { color: '#F1F5F9' }
+                },
+                y: {
+                    grid: { display: false },
+                    ticks: { font: { size: 11 } }
+                }
+            }
+        }
+    });
+
+    // 5. Positioning scatter
+    new Chart(document.getElementById('chartPositioning'), {
+        type: 'bubble',
+        data: {
+            datasets: [
+                {
+                    label: 'Nahibu',
+                    data: [{ x: 189, y: 35, r: 12 }],
+                    backgroundColor: 'rgba(239, 71, 111, 0.7)',
+                },
+                {
+                    label: 'Luxia Scientific',
+                    data: [{ x: 199, y: 60, r: 14 }],
+                    backgroundColor: 'rgba(123, 97, 255, 0.7)',
+                },
+                {
+                    label: 'ZOE',
+                    data: [{ x: 305, y: 85, r: 22 }],
+                    backgroundColor: 'rgba(6, 214, 160, 0.7)',
+                },
+                {
+                    label: 'BIOMES NGS',
+                    data: [{ x: 90, y: 28, r: 8 }],
+                    backgroundColor: 'rgba(249, 115, 22, 0.7)',
+                },
+                {
+                    label: 'Viome',
+                    data: [{ x: 249, y: 75, r: 20 }],
+                    backgroundColor: 'rgba(255, 209, 102, 0.7)',
+                },
+                {
+                    label: 'Biomesight',
+                    data: [{ x: 150, y: 40, r: 10 }],
+                    backgroundColor: 'rgba(144, 224, 239, 0.7)',
+                },
+                {
+                    label: '🟢 Notre projet (169€+abo)',
+                    data: [{ x: 169, y: 70, r: 16 }],
+                    backgroundColor: 'rgba(0, 180, 216, 0.85)',
+                    borderColor: '#0077B6',
+                    borderWidth: 2,
+                },
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom', labels: { font: { size: 10 } } }
+            },
+            scales: {
+                x: {
+                    title: { display: true, text: 'Prix (€)', font: { weight: '600' } },
+                    min: 80,
+                    max: 400,
+                    grid: { color: '#F1F5F9' }
+                },
+                y: {
+                    title: { display: true, text: 'Profondeur d\'analyse (score)', font: { weight: '600' } },
+                    min: 20,
+                    max: 100,
+                    grid: { color: '#F1F5F9' }
+                }
+            }
+        }
+    });
+
+    // 6. Market Share Europe
+    new Chart(document.getElementById('chartMarketShare'), {
+        type: 'doughnut',
+        data: {
+            labels: ['ZOE', 'Atlas Biomed', 'Luxia Scientific', 'Nahibu', 'Biomesight', 'BIOMES NGS', 'Autres', 'Potentiel non capté'],
+            datasets: [{
+                data: [18, 10, 9, 7, 5, 4, 12, 35],
+                backgroundColor: [
+                    colors.success,
+                    colors.accent2,
+                    '#7B61FF',
+                    colors.danger,
+                    colors.accent3,
+                    '#F97316',
+                    colors.warning,
+                    '#E2E8F0'
+                ],
+                borderWidth: 2,
+                borderColor: '#fff',
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '55%',
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ctx.label + ' : ' + ctx.parsed + '%'
+                    }
+                }
+            }
+        }
+    });
+
+    // 7. Revenue projection
+    new Chart(document.getElementById('chartRevenue'), {
+        type: 'bar',
+        data: {
+            labels: ['An 1', 'An 2', 'An 3', 'An 4', 'An 5'],
+            datasets: [
+                {
+                    label: 'Chiffre d\'affaires (k€)',
+                    data: [120, 780, 2800, 7200, 15400],
+                    backgroundColor: function(ctx) {
+                        const chart = ctx.chart;
+                        const {ctx: c, chartArea} = chart;
+                        if (!chartArea) return colors.accent;
+                        const gradient = c.createLinearGradient(0, chartArea.bottom, 0, chartArea.top);
+                        gradient.addColorStop(0, colors.accent3);
+                        gradient.addColorStop(1, colors.accent2);
+                        return gradient;
+                    },
+                    borderRadius: 6,
+                    borderSkipped: false,
+                    order: 2,
+                },
+                {
+                    label: 'EBITDA (k€)',
+                    data: [-380, -150, 420, 1850, 4600],
+                    type: 'line',
+                    borderColor: colors.success,
+                    backgroundColor: 'rgba(6, 214, 160, 0.1)',
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 5,
+                    pointBackgroundColor: function(ctx) {
+                        return ctx.parsed.y < 0 ? colors.danger : colors.success;
+                    },
+                    borderWidth: 3,
+                    order: 1,
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: { position: 'bottom' },
+                tooltip: {
+                    callbacks: {
+                        label: (ctx) => ctx.dataset.label + ' : ' + ctx.parsed.y.toLocaleString() + ' k€'
+                    }
+                }
+            },
+            scales: {
+                y: {
+                    ticks: { callback: v => v.toLocaleString() + ' k€' },
+                    grid: { color: '#F1F5F9' }
+                },
+                x: { grid: { display: false } }
+            }
+        }
+    });
+
+    // 8. Funding allocation
+    new Chart(document.getElementById('chartFunding'), {
+        type: 'doughnut',
+        data: {
+            labels: ['R&D / Labo', 'Plateforme digitale', 'Marketing / Acquisition', 'Réglementaire / Juridique', 'Équipe / RH', 'Fonds de roulement'],
+            datasets: [{
+                data: [30, 20, 22, 8, 12, 8],
+                backgroundColor: [
+                    colors.accent2,
+                    colors.accent,
+                    colors.success,
+                    colors.warning,
+                    '#7B61FF',
+                    colors.danger,
+                ],
+                borderWidth: 3,
+                borderColor: '#fff',
+                hoverOffset: 8,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            cutout: '58%',
+            plugins: {
+                tooltip: {
+                    callbacks: {
+                        label: function(ctx) {
+                            const value = (ctx.parsed * 1.5 / 100).toFixed(0);
+                            return ctx.label + ' : ' + ctx.parsed + '% (' + (ctx.parsed * 15).toLocaleString() + ' k€)';
+                        }
+                    }
+                }
+            }
+        }
+    });
+</script>
+
+</body>
+</html>
