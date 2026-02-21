@@ -5,28 +5,46 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Carebiome — Outils</title>
 <style>
-body { font-family: 'Segoe UI', sans-serif; background: #142B52; color: #fff;
-       display: flex; flex-direction: column; align-items: center;
-       justify-content: center; min-height: 100vh; margin: 0; }
-h1 { font-size: 32px; color: #00B4D8; margin-bottom: 8px; }
-p  { color: #8BB8D0; margin-bottom: 40px; font-size: 15px; }
-.links { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; }
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: #142B52; color: #fff; min-height: 100vh; padding: 40px 20px; }
+.center { max-width: 900px; margin: 0 auto; }
+h1 { font-size: 36px; color: #00B4D8; margin-bottom: 6px; font-weight: 800; }
+.sub { color: #8BB8D0; margin-bottom: 36px; font-size: 15px; }
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 16px; }
 a {
-  display: block; padding: 20px 32px; background: #1A3768;
+  display: block; padding: 20px 24px; background: #1A3768;
   border: 1px solid #285299; border-radius: 12px; color: #E8F4FD;
-  text-decoration: none; font-weight: 600; font-size: 16px; text-align: center;
-  transition: border-color 0.2s;
+  text-decoration: none; font-weight: 600; font-size: 15px;
+  transition: border-color 0.2s, transform 0.15s;
 }
-a:hover { border-color: #00B4D8; color: #00B4D8; }
-a span { display: block; font-size: 12px; color: #8BB8D0; margin-top: 4px; font-weight: 400; }
+a:hover { border-color: #00B4D8; color: #00B4D8; transform: translateY(-2px); }
+a .tag { display: inline-block; font-size: 11px; color: #8BB8D0; margin-top: 5px; font-weight: 400; }
+.section { font-size: 11px; font-weight: 700; color: #8BB8D0; text-transform: uppercase;
+           letter-spacing: 1px; margin: 28px 0 12px; }
 </style>
 </head>
 <body>
-<h1>Carebiome</h1>
-<p>Outils interactifs — Microbiome 50+</p>
-<div class="links">
-  <a href="veille/">Veille Scientifique<span>bioRxiv · ClinicalTrials</span></a>
-  <a href="financement/">Financement Public<span>28 programmes · 570k-1,16M€</span></a>
+<div class="center">
+  <h1>Carebiome</h1>
+  <div class="sub">Outils interactifs — Microbiome 50+</div>
+
+  <div class="section">Recherche & Veille</div>
+  <div class="grid">
+    <a href="veille/">Veille Scientifique<span class="tag">bioRxiv · medRxiv · ClinicalTrials</span></a>
+    <a href="etude/">Étude de Marché<span class="tag">Marché · Concurrents · Projections</span></a>
+  </div>
+
+  <div class="section">Financement</div>
+  <div class="grid">
+    <a href="financement/">Financement Public<span class="tag">28 programmes · 305k–660k€ non dilutif</span></a>
+  </div>
+
+  <div class="section">Business Development</div>
+  <div class="grid">
+    <a href="prospection/">Prospection B2B<span class="tag">Centres bilan de santé · CRM</span></a>
+    <a href="roi/">ROI Partenariat<span class="tag">Simulateur retour sur investissement</span></a>
+    <a href="executive-summary/">Executive Summary<span class="tag">Synthèse projet investisseurs</span></a>
+  </div>
 </div>
 </body>
 </html>
