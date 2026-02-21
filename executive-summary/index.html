@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carebiome — Executive Summary</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap');
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Inter', 'Segoe UI', sans-serif;
+    background: #f0f4f8;
+    color: #1a2e44;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    padding: 32px 16px;
+  }
+
+  .page {
+    width: 210mm;
+    min-height: 297mm;
+    background: white;
+    box-shadow: 0 4px 40px rgba(0,0,0,0.15);
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* HEADER */
+  .header {
+    background: linear-gradient(135deg, #0D1A2E 0%, #1B3A6B 100%);
+    padding: 28px 36px 22px;
+    color: white;
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+  .logo { font-size: 28px; font-weight: 800; color: #00B4D8; letter-spacing: 3px; }
+  .tagline { font-size: 11px; color: #7BA7BC; margin-top: 3px; letter-spacing: 1px; text-transform: uppercase; }
+  .header-right { text-align: right; }
+  .doc-label {
+    background: rgba(0,180,216,0.2);
+    border: 1px solid #00B4D8;
+    color: #00B4D8;
+    padding: 5px 14px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+  }
+  .date { font-size: 10px; color: #7BA7BC; margin-top: 6px; }
+
+  /* HOOK */
+  .hook {
+    background: #EBF8FF;
+    border-left: 4px solid #00B4D8;
+    padding: 14px 36px;
+    font-size: 13px;
+    color: #1B3A6B;
+    font-weight: 500;
+    line-height: 1.6;
+  }
+  .hook strong { color: #00B4D8; }
+
+  /* BODY */
+  .body { padding: 20px 36px; flex: 1; display: flex; flex-direction: column; gap: 16px; }
+
+  /* SECTION */
+  .section-title {
+    font-size: 9px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: #00B4D8;
+    border-bottom: 1px solid #e2eaf2;
+    padding-bottom: 5px;
+    margin-bottom: 10px;
+  }
+
+  /* GRID 2 COL */
+  .grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+  .grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+
+  /* CARD */
+  .card {
+    background: #f8fafc;
+    border: 1px solid #e2eaf2;
+    border-radius: 8px;
+    padding: 12px 14px;
+  }
+  .card-title { font-size: 10px; font-weight: 700; color: #1B3A6B; text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 6px; }
+  .card p { font-size: 11px; color: #4a6580; line-height: 1.5; }
+
+  /* HIGHLIGHT BOX */
+  .highlight {
+    background: linear-gradient(135deg, #0D1A2E, #1B3A6B);
+    border-radius: 8px;
+    padding: 14px 18px;
+    color: white;
+  }
+  .highlight .card-title { color: #00B4D8; }
+  .highlight p { color: #c8dde9; font-size: 11px; line-height: 1.5; }
+
+  /* METRICS */
+  .metrics { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .metric {
+    background: #f8fafc;
+    border: 1px solid #e2eaf2;
+    border-radius: 8px;
+    padding: 10px 12px;
+    text-align: center;
+  }
+  .metric-val { font-size: 20px; font-weight: 800; color: #00B4D8; line-height: 1; }
+  .metric-unit { font-size: 11px; font-weight: 600; color: #00B4D8; }
+  .metric-label { font-size: 9px; color: #7BA7BC; margin-top: 3px; text-transform: uppercase; letter-spacing: 0.5px; }
+
+  /* GTM PHASES */
+  .gtm-phases { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; }
+  .gtm-phase {
+    border-radius: 8px; padding: 11px 13px;
+    border: 1px solid #e2eaf2; background: #f8fafc;
+    position: relative;
+  }
+  .gtm-phase.anchor {
+    background: linear-gradient(135deg, #0D1A2E, #1B3A6B);
+    border-color: #00B4D8;
+  }
+  .phase-num {
+    font-size: 8px; font-weight: 700; letter-spacing: 1px;
+    text-transform: uppercase; margin-bottom: 5px;
+  }
+  .gtm-phase.anchor .phase-num { color: #00B4D8; }
+  .gtm-phase:not(.anchor) .phase-num { color: #7BA7BC; }
+  .phase-title {
+    font-size: 11px; font-weight: 700; margin-bottom: 5px;
+  }
+  .gtm-phase.anchor .phase-title { color: white; }
+  .gtm-phase:not(.anchor) .phase-title { color: #1B3A6B; }
+  .phase-detail { font-size: 10px; line-height: 1.5; }
+  .gtm-phase.anchor .phase-detail { color: #c8dde9; }
+  .gtm-phase:not(.anchor) .phase-detail { color: #4a6580; }
+  .anchor-badge {
+    display: inline-block; background: #00B4D8; color: #0D1A2E;
+    font-size: 8px; font-weight: 700; padding: 2px 8px;
+    border-radius: 10px; margin-bottom: 6px; letter-spacing: 0.5px;
+    text-transform: uppercase;
+  }
+
+  /* PRODUIT STEPS */
+  .produit-steps { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+  .produit-step {
+    background: #f8fafc; border: 1px solid #e2eaf2;
+    border-radius: 8px; padding: 10px 12px; text-align: center;
+  }
+  .step-icon { font-size: 20px; margin-bottom: 5px; }
+  .step-num {
+    font-size: 8px; font-weight: 700; color: #00B4D8;
+    text-transform: uppercase; letter-spacing: 1px; margin-bottom: 3px;
+  }
+  .step-label { font-size: 10.5px; font-weight: 600; color: #1B3A6B; margin-bottom: 3px; }
+  .step-detail { font-size: 9.5px; color: #7BA7BC; line-height: 1.4; }
+
+  /* DIFFERENTS */
+  .diff-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    margin-bottom: 6px;
+    font-size: 11px;
+    color: #4a6580;
+    line-height: 1.4;
+  }
+  .diff-dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: #00B4D8; margin-top: 4px; flex-shrink: 0;
+  }
+
+  /* INVESTORS */
+  .inv-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+  .inv-item {
+    display: flex; align-items: center; gap: 8px;
+    background: #f8fafc; border: 1px solid #e2eaf2;
+    border-radius: 6px; padding: 8px 10px;
+    font-size: 10.5px;
+  }
+  .inv-badge {
+    font-size: 8px; font-weight: 700; padding: 2px 7px;
+    border-radius: 10px; white-space: nowrap;
+  }
+  .badge-now { background: #d1fae5; color: #065f46; }
+  .badge-poc { background: #fef3c7; color: #92400e; }
+  .badge-a { background: #dbeafe; color: #1e3a8a; }
+  .inv-item strong { font-size: 10.5px; color: #1B3A6B; }
+  .inv-item span { font-size: 10px; color: #7BA7BC; }
+
+  /* DEMAND BOX */
+  .demand-box {
+    background: linear-gradient(135deg, #00B4D8, #0077B6);
+    border-radius: 8px;
+    padding: 16px 20px;
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+  }
+  .demand-amount { font-size: 36px; font-weight: 800; line-height: 1; }
+  .demand-label { font-size: 11px; opacity: 0.85; margin-top: 2px; }
+  .demand-detail { font-size: 11px; opacity: 0.9; line-height: 1.6; }
+  .demand-use { font-size: 10px; opacity: 0.75; margin-top: 6px; }
+
+  /* FOOTER */
+  .footer {
+    background: #0D1A2E;
+    padding: 12px 36px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-contact { font-size: 10px; color: #7BA7BC; }
+  .footer-contact strong { color: #00B4D8; }
+  .footer-conf { font-size: 9px; color: #4a6580; font-style: italic; }
+
+  /* PRINT */
+  @media print {
+    body { background: white; padding: 0; }
+    .page { box-shadow: none; width: 100%; min-height: auto; }
+  }
+</style>
+</head>
+<body>
+<div class="page">
+
+  <!-- HEADER -->
+  <div class="header">
+    <div>
+      <div class="logo">CAREBIOME</div>
+      <div class="tagline">Votre microbiote, votre allié pour bien vieillir</div>
+    </div>
+    <div class="header-right">
+      <div class="doc-label">Executive Summary</div>
+      <div class="date">Février 2026 — Confidentiel</div>
+    </div>
+  </div>
+
+  <!-- HOOK -->
+  <div class="hook">
+    <strong>27 millions de Français de 50 ans et plus</strong> n'ont accès à aucun outil de prévention personnalisée par le microbiote.
+    Carebiome comble ce vide avec un kit d'analyse à domicile, un suivi longitudinal et des recommandations <em>healthy aging</em> scientifiquement validées.
+  </div>
+
+  <div class="body">
+
+    <!-- MARCHÉ + PROBLÈME -->
+    <div>
+      <div class="section-title">Marché & Opportunité</div>
+      <div class="metrics">
+        <div class="metric">
+          <div class="metric-val">27<span class="metric-unit">M</span></div>
+          <div class="metric-label">Français 50+ (cible)</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">2,1<span class="metric-unit">Md€</span></div>
+          <div class="metric-label">Marché mondial 2030</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">10,5<span class="metric-unit">%</span></div>
+          <div class="metric-label">CAGR 2025–2030</div>
+        </div>
+        <div class="metric">
+          <div class="metric-val">130<span class="metric-unit">Md€</span></div>
+          <div class="metric-label">Silver Economy FR 2030</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- SOLUTION + DIFFÉRENCIATION -->
+    <div class="grid-2">
+      <div class="card">
+        <div class="card-title">Solution</div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Kit de prélèvement</strong> à domicile (tube stabilisateur ADN, envoi postal)</span></div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Analyse 16S rRNA</strong> avec biomarqueurs healthy aging validés</span></div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Rapport personnalisé</strong> : score santé + recommandations actionnables</span></div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Suivi longitudinal</strong> 2–4 analyses/an : valeur dans la trajectoire, pas le snapshot</span></div>
+      </div>
+      <div class="card">
+        <div class="card-title">Différenciation vs ZOE, Nahibu, Viome</div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Focus exclusif 50+</strong> — niche non adressée par les acteurs existants</span></div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Distribution B2B2C</strong> via médecins et mutuelles (CAC divisé par 3)</span></div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Ancrage scientifique français</strong> — partenariats INRAE / AP-HP en cours</span></div>
+        <div class="diff-item"><div class="diff-dot"></div><span><strong>Positionnement bien-être</strong> — hors IVDR, commercialisation rapide</span></div>
+      </div>
+    </div>
+
+    <!-- PRODUIT -->
+    <div>
+      <div class="section-title">Produit</div>
+      <div class="produit-steps">
+        <div class="produit-step">
+          <div class="step-icon">📦</div>
+          <div class="step-num">Étape 1</div>
+          <div class="step-label">Kit à domicile</div>
+          <div class="step-detail">Tube stabilisateur ADN · Notice illustrée · Enveloppe retour prépayée</div>
+        </div>
+        <div class="produit-step">
+          <div class="step-icon">🔬</div>
+          <div class="step-num">Étape 2</div>
+          <div class="step-label">Analyse laboratoire</div>
+          <div class="step-detail">Séquençage 16S rRNA · Biomarqueurs healthy aging validés · Résultats &lt; 3 semaines</div>
+        </div>
+        <div class="produit-step">
+          <div class="step-icon">📊</div>
+          <div class="step-num">Étape 3</div>
+          <div class="step-label">Rapport personnalisé</div>
+          <div class="step-detail">Score santé microbiote · Espèces clés · Recommandations nutrition &amp; mode de vie</div>
+        </div>
+        <div class="produit-step">
+          <div class="step-icon">📈</div>
+          <div class="step-num">Étape 4</div>
+          <div class="step-label">Suivi longitudinal</div>
+          <div class="step-detail">2–4 analyses/an · Trajectoire dans le temps · Plateforme digitale sécurisée</div>
+        </div>
+      </div>
+      <div class="grid-3" style="margin-top:10px;">
+        <div class="card">
+          <div class="card-title">Offre Découverte</div>
+          <p><strong style="color:#00B4D8; font-size:16px;">149 €</strong><br>Analyse unique · Rapport complet<br>Recommandations 90 jours</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Abonnement Suivi</div>
+          <p><strong style="color:#00B4D8; font-size:16px;">39–69 €</strong><span style="font-size:10px; color:#7BA7BC">/mois</span><br>2 à 4 analyses/an<br>Accès plateforme · Historique</p>
+        </div>
+        <div class="card">
+          <div class="card-title">Offre B2B</div>
+          <p><strong style="color:#00B4D8; font-size:16px;">Sur devis</strong><br>Intégration bilan de santé<br>Rapport médecin inclus</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- GO TO MARKET -->
+    <div>
+      <div class="section-title">Go to Market</div>
+      <div class="gtm-phases">
+        <div class="gtm-phase anchor">
+          <div class="anchor-badge">★ Premier client B2B</div>
+          <div class="phase-num">Phase 1 — Maintenant</div>
+          <div class="phase-title">Centres de bilan de santé</div>
+          <div class="phase-detail">
+            Intégration dans les bilans santé existants (IFR, Centre Pasteur, cliniques privées)<br><br>
+            <strong style="color:#00B4D8;">Avantages :</strong> client prescrit &amp; accompagne · volume garanti · crédibilité médicale · CAC nul
+          </div>
+        </div>
+        <div class="gtm-phase">
+          <div class="phase-num">Phase 2 — M+6</div>
+          <div class="phase-title">Médecins prescripteurs</div>
+          <div class="phase-detail">
+            Généralistes et spécialistes (gastro-entérologues, gériatres, nutritionnistes)<br><br>
+            Le médecin prescrit, reçoit le rapport commenté, facturer un acte de consultation
+          </div>
+        </div>
+        <div class="gtm-phase">
+          <div class="phase-num">Phase 3 — An 2</div>
+          <div class="phase-title">Mutuelles &amp; pharmacies</div>
+          <div class="phase-detail">
+            Partenariats mutuelles (remboursement partiel) · Pharmacies indépendantes &amp; groupements · B2C digital (SEO, contenu)
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- INVESTISSEURS -->
+    <div>
+      <div class="section-title">Investisseurs Ciblés</div>
+      <div class="inv-grid">
+        <div class="inv-item"><span class="inv-badge badge-now">Maintenant</span><div><strong>Angels Santé · Angelsquare · France Angels</strong><br><span>Business angels santé — 400–600 k€</span></div></div>
+        <div class="inv-item"><span class="inv-badge badge-now">Maintenant</span><div><strong>Bpifrance · EIT Health · ANR</strong><br><span>Financement public — 250–400 k€</span></div></div>
+        <div class="inv-item"><span class="inv-badge badge-poc">Après POC</span><div><strong>Elaia · Karista · Heal Capital</strong><br><span>VC healthtech early stage — Seed +</span></div></div>
+        <div class="inv-item"><span class="inv-badge badge-a">Série A</span><div><strong>Seventure — Health for Life III</strong><br><span>LE fonds microbiome mondial — 3–5 M€</span></div></div>
+      </div>
+    </div>
+
+  </div>
+
+  <!-- FOOTER -->
+  <div class="footer">
+    <div class="footer-contact">
+      <strong>Clémence Huignard</strong> — Fondatrice &amp; CEO, Carebiome<br>
+      <span style="color:#4a6580;">[ email ] · [ téléphone ] · carebiome.fr</span>
+    </div>
+    <div class="footer-conf">Document confidentiel — Février 2026</div>
+  </div>
+
+</div>
+</body>
+</html>
