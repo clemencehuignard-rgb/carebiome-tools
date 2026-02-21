@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carebiome — Veille Scientifique</title>
+<style>
+:root {
+  --bg: #142B52;
+  --card: #1A3768;
+  --border: #285299;
+  --accent: #00B4D8;
+  --accent2: #0077B6;
+  --success: #06D6A0;
+  --warning: #F59E0B;
+  --danger: #EF4444;
+  --white: #FFFFFF;
+  --light: #E8F4F8;
+  --gray: #8BB8D0;
+  --primary: #1C3B6E;
+}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { font-family: 'Segoe UI', sans-serif; background: var(--bg); color: var(--light); min-height: 100vh; }
+
+/* ── HEADER ── */
+header {
+  background: var(--primary);
+  border-bottom: 2px solid var(--accent);
+  padding: 14px 32px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.logo { font-size: 20px; font-weight: 700; color: var(--accent); letter-spacing: 2px; }
+.subtitle { font-size: 13px; color: var(--gray); margin-top: 2px; }
+.header-badge {
+  background: rgba(0,180,216,0.15); border: 1px solid var(--accent);
+  color: var(--accent); padding: 4px 14px; border-radius: 20px; font-size: 12px; font-weight: 600;
+}
+
+/* ── AUTO-REFRESH BAR ── */
+.refresh-bar {
+  background: var(--primary); border-bottom: 1px solid var(--border);
+  padding: 8px 32px; display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+}
+.refresh-toggle {
+  display: flex; align-items: center; gap: 8px; cursor: pointer;
+  font-size: 13px; color: var(--gray); user-select: none;
+}
+.toggle-switch {
+  width: 36px; height: 20px; background: var(--border); border-radius: 10px;
+  position: relative; transition: background 0.2s; flex-shrink: 0;
+}
+.toggle-switch.on { background: var(--accent); }
+.toggle-switch::after {
+  content: ''; position: absolute; width: 14px; height: 14px;
+  background: white; border-radius: 50%; top: 3px; left: 3px; transition: left 0.2s;
+}
+.toggle-switch.on::after { left: 19px; }
+.refresh-interval {
+  background: var(--bg); border: 1px solid var(--border); border-radius: 6px;
+  padding: 4px 10px; color: var(--light); font-size: 12px; font-family: 'Segoe UI', sans-serif; outline: none;
+}
+.refresh-interval:focus { border-color: var(--accent); }
+.refresh-status { font-size: 12px; color: var(--gray); margin-left: auto; }
+.refresh-status .next { color: var(--accent); font-weight: 600; }
+.pulse-dot {
+  width: 8px; height: 8px; border-radius: 50%; background: var(--success);
+  display: inline-block; margin-right: 5px; animation: pulse 2s infinite;
+}
+@keyframes pulse {
+  0%,100% { opacity: 1; transform: scale(1); }
+  50%      { opacity: 0.5; transform: scale(0.8); }
+}
+.new-badge {
+  background: var(--success); color: var(--bg); font-size: 10px; font-weight: 700;
+  padding: 2px 7px; border-radius: 10px; margin-left: 6px;
+}
+.refreshing-indicator {
+  font-size: 12px; color: var(--accent); display: flex; align-items: center; gap: 6px;
+}
+.mini-spinner {
+  width: 12px; height: 12px; border: 2px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.7s linear infinite; display: inline-block;
+}
+
+/* ── TABS ── */
+.tabs {
+  display: flex; background: var(--primary);
+  padding: 0 32px; border-bottom: 1px solid var(--border); gap: 4px;
+}
+.tab {
+  padding: 12px 22px; cursor: pointer; font-size: 14px; font-weight: 600;
+  color: var(--gray); border-bottom: 3px solid transparent; transition: all 0.2s; white-space: nowrap;
+}
+.tab:hover { color: var(--light); }
+.tab.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* ── MAIN ── */
+.main { padding: 24px 32px; max-width: 1500px; margin: 0 auto; }
+.panel { display: none; }
+.panel.active { display: block; }
+
+/* ── SEARCH FORM ── */
+.search-form {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 22px; margin-bottom: 20px;
+}
+.form-grid {
+  display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 14px; margin-bottom: 14px;
+}
+.form-group { display: flex; flex-direction: column; gap: 5px; }
+.form-group label {
+  font-size: 11px; font-weight: 700; color: var(--gray);
+  text-transform: uppercase; letter-spacing: 0.5px;
+}
+.form-group input, .form-group select {
+  background: var(--primary); border: 1px solid var(--border);
+  border-radius: 8px; padding: 9px 12px; color: var(--light);
+  font-size: 13px; font-family: 'Segoe UI', sans-serif; outline: none;
+  transition: border-color 0.2s;
+}
+.form-group input:focus, .form-group select:focus { border-color: var(--accent); }
+.form-group input::placeholder { color: var(--gray); opacity: 0.7; }
+.form-group select option { background: var(--primary); }
+
+/* ── BUTTONS ── */
+.btn {
+  padding: 9px 20px; border-radius: 8px; border: none; cursor: pointer;
+  font-size: 13px; font-weight: 600; font-family: 'Segoe UI', sans-serif; transition: all 0.2s;
+}
+.btn-primary { background: var(--accent); color: var(--bg); }
+.btn-primary:hover { background: #00C8F0; }
+.btn-secondary { background: transparent; color: var(--accent); border: 1px solid var(--accent); }
+.btn-secondary:hover { background: rgba(0,180,216,0.1); }
+.btn:disabled { opacity: 0.45; cursor: not-allowed; }
+.btn-sm { padding: 5px 12px; font-size: 12px; }
+
+/* ── PRESETS ── */
+.presets { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; align-items: center; }
+.preset-label { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; }
+.chip {
+  padding: 4px 11px; border-radius: 14px; background: rgba(0,180,216,0.1);
+  border: 1px solid rgba(0,180,216,0.3); color: var(--accent); font-size: 12px;
+  cursor: pointer; transition: all 0.2s;
+}
+.chip:hover { background: rgba(0,180,216,0.2); border-color: var(--accent); }
+
+/* ── RESULTS ── */
+.results-bar {
+  display: flex; justify-content: space-between; align-items: center; margin-bottom: 14px;
+}
+.results-count { font-size: 13px; color: var(--gray); }
+.results-count strong { color: var(--accent); font-size: 16px; }
+
+.cards-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(420px, 1fr)); gap: 14px; }
+
+.card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 18px; transition: border-color 0.2s;
+  position: relative; overflow: hidden;
+}
+.card::before {
+  content: ''; position: absolute; top: 0; left: 0; right: 0;
+  height: 3px; background: var(--accent);
+}
+.card.success::before { background: var(--success); }
+.card.warning::before { background: var(--warning); }
+.card:hover { border-color: rgba(0,180,216,0.5); }
+
+.card-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 10px; margin-bottom: 10px; }
+.card-title { font-size: 14px; font-weight: 600; color: var(--white); line-height: 1.4; flex: 1; }
+
+.badge {
+  padding: 3px 9px; border-radius: 16px; font-size: 11px; font-weight: 700;
+  white-space: nowrap; flex-shrink: 0;
+}
+.b-blue    { background: rgba(0,180,216,0.2); color: var(--accent); }
+.b-green   { background: rgba(6,214,160,0.2); color: var(--success); }
+.b-orange  { background: rgba(245,158,11,0.2); color: var(--warning); }
+.b-red     { background: rgba(239,68,68,0.2); color: var(--danger); }
+.b-gray    { background: rgba(139,184,208,0.12); color: var(--gray); }
+.b-navy    { background: rgba(0,119,182,0.25); color: #69C0FF; }
+
+.card-meta {
+  font-size: 12px; color: var(--gray); margin-bottom: 8px;
+  display: flex; gap: 10px; flex-wrap: wrap; align-items: center;
+}
+.card-meta .nct { color: var(--accent); font-weight: 700; font-size: 13px; }
+.card-abstract {
+  font-size: 12px; color: var(--gray); line-height: 1.6; margin-bottom: 12px;
+  display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden;
+}
+.card-detail { font-size: 12px; color: var(--gray); margin: 4px 0; line-height: 1.5; }
+.card-detail strong { color: var(--light); }
+.card-detail.highlight strong { color: var(--success); }
+.card-footer { display: flex; gap: 7px; flex-wrap: wrap; margin-top: 12px; }
+.card-link {
+  font-size: 12px; font-weight: 600; color: var(--accent); text-decoration: none;
+  padding: 5px 11px; border: 1px solid var(--accent); border-radius: 6px;
+  transition: all 0.2s; display: inline-block; cursor: pointer; background: none;
+  font-family: 'Segoe UI', sans-serif;
+}
+.card-link:hover { background: rgba(0,180,216,0.12); }
+
+/* ── NCT TAGS ── */
+.nct-input-row { display: flex; gap: 8px; margin-bottom: 10px; }
+.nct-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 14px; }
+.nct-tag {
+  background: rgba(0,180,216,0.12); border: 1px solid var(--accent);
+  color: var(--accent); padding: 4px 10px; border-radius: 16px; font-size: 13px;
+  display: flex; align-items: center; gap: 6px;
+}
+.nct-tag button { background: none; border: none; color: var(--accent); cursor: pointer; font-size: 16px; line-height: 1; padding: 0; }
+
+/* ── COMPARISON TABLE ── */
+.table-wrap { overflow-x: auto; border-radius: 10px; border: 1px solid var(--border); }
+.compare-table { width: 100%; border-collapse: collapse; font-size: 13px; min-width: 600px; }
+.compare-table th {
+  background: var(--primary); color: var(--accent); padding: 11px 14px;
+  text-align: left; border-bottom: 2px solid var(--accent); font-weight: 700; white-space: nowrap;
+}
+.compare-table td {
+  padding: 10px 14px; border-bottom: 1px solid var(--border); vertical-align: top; color: var(--light);
+}
+.compare-table tr:nth-child(even) td { background: rgba(26, 55, 104, 0.3); }
+.compare-table .row-label { color: var(--gray); font-weight: 600; white-space: nowrap; }
+.compare-table .highlight-cell { color: var(--success); font-weight: 600; }
+
+/* ── STATES ── */
+.loading { text-align: center; padding: 56px; color: var(--gray); }
+.spinner {
+  width: 34px; height: 34px; border: 3px solid var(--border); border-top-color: var(--accent);
+  border-radius: 50%; animation: spin 0.8s linear infinite; margin: 0 auto 14px;
+}
+@keyframes spin { to { transform: rotate(360deg); } }
+.empty { text-align: center; padding: 56px; color: var(--gray); }
+.empty-icon { font-size: 36px; margin-bottom: 12px; }
+.empty-sub { font-size: 13px; margin-top: 8px; opacity: 0.7; }
+.error-inline {
+  background: rgba(239,68,68,0.12); border: 1px solid rgba(239,68,68,0.3);
+  color: #FCA5A5; border-radius: 8px; padding: 9px 14px; font-size: 13px;
+}
+
+/* ── STAT STRIP ── */
+.stat-strip {
+  display: flex; gap: 16px; flex-wrap: wrap; margin-bottom: 18px;
+}
+.stat-item {
+  background: var(--card); border: 1px solid var(--border); border-radius: 10px;
+  padding: 12px 18px; display: flex; align-items: center; gap: 10px;
+}
+.stat-val { font-size: 22px; font-weight: 700; color: var(--accent); }
+.stat-lbl { font-size: 12px; color: var(--gray); }
+</style>
+</head>
+<body>
+
+<!-- ═══════ HEADER ═══════ -->
+<header>
+  <div>
+    <div class="logo">CAREBIOME</div>
+    <div class="subtitle">Veille Scientifique — Preprints & Essais Cliniques</div>
+  </div>
+  <span class="header-badge">Live Data</span>
+</header>
+
+<!-- ═══════ AUTO-REFRESH BAR ═══════ -->
+<div class="refresh-bar">
+  <div class="refresh-toggle" onclick="toggleAutoRefresh()">
+    <div class="toggle-switch" id="toggle-sw"></div>
+    <span>Mise à jour automatique</span>
+  </div>
+  <select class="refresh-interval" id="refresh-interval" onchange="onIntervalChange()">
+    <option value="43200000" selected>2x par jour (toutes les 12h)</option>
+    <option value="86400000">1x par jour (toutes les 24h)</option>
+    <option value="3600000">Toutes les heures</option>
+  </select>
+  <button class="btn btn-secondary" style="padding:4px 12px;font-size:12px;" onclick="manualRefresh()">↺ Rafraîchir maintenant</button>
+  <div class="refresh-status" id="refresh-status">
+    <span id="last-update">—</span>
+  </div>
+  <div class="refreshing-indicator" id="refreshing-indicator" style="display:none;">
+    <div class="mini-spinner"></div> Mise à jour…
+  </div>
+</div>
+
+<!-- ═══════ TABS ═══════ -->
+<div class="tabs">
+  <div class="tab active" onclick="switchTab('preprints')">🔬 Preprints bioRxiv / medRxiv</div>
+  <div class="tab" onclick="switchTab('trials')">🏥 Essais Cliniques</div>
+  <div class="tab" onclick="switchTab('compare')">📊 Analyse Comparative</div>
+</div>
+
+<div class="main">
+
+<!-- ═══════════════════════════════════════════
+     TAB 1 — PREPRINTS
+════════════════════════════════════════════ -->
+<div id="panel-preprints" class="panel active">
+  <div class="search-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Serveur</label>
+        <select id="server">
+          <option value="biorxiv">bioRxiv — Sciences biologiques</option>
+          <option value="medrxiv">medRxiv — Sciences médicales</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Catégorie</label>
+        <select id="category">
+          <option value="">Toutes catégories</option>
+          <option value="microbiology">Microbiologie</option>
+          <option value="genomics">Génomique</option>
+          <option value="immunology">Immunologie</option>
+          <option value="cell biology">Biologie cellulaire</option>
+          <option value="neuroscience">Neurosciences</option>
+          <option value="physiology">Physiologie</option>
+          <option value="systems biology">Biologie systèmes</option>
+          <option value="biochemistry">Biochimie</option>
+          <option value="epidemiology">Épidémiologie</option>
+          <option value="pharmacology and toxicology">Pharmacologie</option>
+          <option value="cancer biology">Cancérologie</option>
+          <option value="genetics">Génétique</option>
+          <option value="bioinformatics">Bioinformatique</option>
+          <option value="ecology">Écologie</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Date début</label>
+        <input type="date" id="date-from">
+      </div>
+      <div class="form-group">
+        <label>Date fin</label>
+        <input type="date" id="date-to">
+      </div>
+      <div class="form-group">
+        <label>Mot-clé (titre + résumé)</label>
+        <input type="text" id="keyword" placeholder="microbiome, aging, akkermansia…">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="searchPreprints()">Rechercher</button>
+      <button class="btn btn-secondary" onclick="exportCSV('preprints')">Exporter CSV</button>
+      <div id="preprint-error"></div>
+    </div>
+    <div class="presets">
+      <span class="preset-label">Rapide :</span>
+      <span class="chip" onclick="setPresetPreprint('microbiology','microbiome aging')">Microbiome & vieillissement</span>
+      <span class="chip" onclick="setPresetPreprint('microbiology','akkermansia')">Akkermansia</span>
+      <span class="chip" onclick="setPresetPreprint('microbiology','bifidobacterium elderly')">Bifidobacterium seniors</span>
+      <span class="chip" onclick="setPresetPreprint('immunology','gut inflammation')">Inflammation intestinale</span>
+      <span class="chip" onclick="setPresetPreprint('genomics','16S rRNA microbiota')">16S rRNA séquençage</span>
+      <span class="chip" onclick="setPresetPreprint('physiology','gut microbiota dysbiosis')">Dysbiose</span>
+      <span class="chip" onclick="setPresetPreprint('neuroscience','gut brain axis')">Axe intestin-cerveau</span>
+    </div>
+  </div>
+
+  <div class="results-bar">
+    <div class="results-count" id="preprint-count">—</div>
+  </div>
+  <div id="preprint-results">
+    <div class="empty">
+      <div class="empty-icon">🔬</div>
+      <div>Lancez une recherche pour afficher les derniers preprints</div>
+      <div class="empty-sub">Les données proviennent directement de l'API bioRxiv / medRxiv</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAB 2 — ESSAIS CLINIQUES
+════════════════════════════════════════════ -->
+<div id="panel-trials" class="panel">
+  <div class="search-form">
+    <div class="form-grid">
+      <div class="form-group">
+        <label>Condition / Pathologie</label>
+        <input type="text" id="t-condition" placeholder="microbiome, aging, IBS…">
+      </div>
+      <div class="form-group">
+        <label>Intervention / Médicament</label>
+        <input type="text" id="t-intervention" placeholder="probiotic, FMT, metformin…">
+      </div>
+      <div class="form-group">
+        <label>Sponsor / Institution</label>
+        <input type="text" id="t-sponsor" placeholder="INRAE, AP-HP, Pfizer…">
+      </div>
+      <div class="form-group">
+        <label>Statut</label>
+        <select id="t-status">
+          <option value="">Tous statuts</option>
+          <option value="RECRUITING">En recrutement</option>
+          <option value="ACTIVE_NOT_RECRUITING">Actif (fermé)</option>
+          <option value="COMPLETED">Terminé</option>
+          <option value="NOT_YET_RECRUITING">À venir</option>
+          <option value="TERMINATED">Arrêté</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Phase</label>
+        <select id="t-phase">
+          <option value="">Toutes phases</option>
+          <option value="EARLY_PHASE1">Phase I précoce</option>
+          <option value="PHASE1">Phase I</option>
+          <option value="PHASE2">Phase II</option>
+          <option value="PHASE3">Phase III</option>
+          <option value="PHASE4">Phase IV</option>
+          <option value="NA">Observationnelle</option>
+        </select>
+      </div>
+      <div class="form-group">
+        <label>Pays / Lieu</label>
+        <input type="text" id="t-location" placeholder="France, Paris, Europe…">
+      </div>
+    </div>
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="searchTrials()">Rechercher</button>
+      <button class="btn btn-secondary" onclick="exportCSV('trials')">Exporter CSV</button>
+      <div id="trial-error"></div>
+    </div>
+    <div class="presets">
+      <span class="preset-label">Rapide :</span>
+      <span class="chip" onclick="setPresetTrial('gut microbiome','','','RECRUITING')">Microbiome en recrutement</span>
+      <span class="chip" onclick="setPresetTrial('aging microbiome','','','RECRUITING')">Microbiome & aging</span>
+      <span class="chip" onclick="setPresetTrial('gut','probiotic','','RECRUITING')">Probiotiques</span>
+      <span class="chip" onclick="setPresetTrial('','fecal microbiota transplantation','','RECRUITING')">FMT</span>
+      <span class="chip" onclick="setPresetTrial('irritable bowel syndrome','','','')">Syndrome intestin irritable</span>
+      <span class="chip" onclick="setPresetTrial('microbiome','','','','France')">Essais en France</span>
+      <span class="chip" onclick="setPresetTrial('elderly microbiota','','','RECRUITING')">Microbiote personnes âgées</span>
+    </div>
+  </div>
+
+  <div class="results-bar">
+    <div class="results-count" id="trial-count">—</div>
+  </div>
+  <div id="trial-results">
+    <div class="empty">
+      <div class="empty-icon">🏥</div>
+      <div>Lancez une recherche pour afficher les essais cliniques</div>
+      <div class="empty-sub">Données en temps réel depuis ClinicalTrials.gov (NIH/NLM)</div>
+    </div>
+  </div>
+</div>
+
+<!-- ═══════════════════════════════════════════
+     TAB 3 — ANALYSE COMPARATIVE
+════════════════════════════════════════════ -->
+<div id="panel-compare" class="panel">
+  <div class="search-form">
+    <p style="font-size:13px;color:var(--gray);margin-bottom:14px;">
+      Entrez plusieurs identifiants NCT pour comparer leurs protocoles, endpoints et investigateurs en un tableau.
+    </p>
+    <div class="nct-input-row">
+      <div class="form-group" style="flex:1;">
+        <input type="text" id="nct-input" placeholder="Ex: NCT05598112  (Entrée pour ajouter)"
+               onkeydown="if(event.key==='Enter') addNct()">
+      </div>
+      <button class="btn btn-primary" onclick="addNct()" style="align-self:flex-end;">Ajouter</button>
+    </div>
+    <div class="nct-tags" id="nct-tags"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;">
+      <button class="btn btn-primary" onclick="runComparison()" id="compare-btn" disabled>Analyser & Comparer</button>
+      <button class="btn btn-secondary" onclick="clearComparison()">Réinitialiser</button>
+    </div>
+    <div class="presets" style="margin-top:12px;">
+      <span class="preset-label">Exemples :</span>
+      <span class="chip" onclick="addNctDirect('NCT05598112')">NCT05598112 — FMT aging</span>
+      <span class="chip" onclick="addNctDirect('NCT06411964')">NCT06411964 — GOS muscle</span>
+      <span class="chip" onclick="addNctDirect('NCT06519877')">NCT06519877 — Fibre calcium</span>
+      <span class="chip" onclick="addNctDirect('NCT07378787')">NCT07378787 — NutriAge</span>
+    </div>
+  </div>
+  <div id="compare-results">
+    <div class="empty">
+      <div class="empty-icon">📊</div>
+      <div>Ajoutez au moins 1 identifiant NCT et cliquez "Analyser"</div>
+      <div class="empty-sub">Astuce : cliquez "Ajouter à l'analyse" sur n'importe quel essai de l'onglet Essais Cliniques</div>
+    </div>
+  </div>
+</div>
+
+</div><!-- /main -->
+
+<script>
+// ══════════════════════════════════════════════════
+// STATE
+// ══════════════════════════════════════════════════
+let preprintData = [];
+let trialData    = [];
+let nctList      = [];
+
+// ══════════════════════════════════════════════════
+// TABS
+// ══════════════════════════════════════════════════
+function switchTab(name) {
+  const names = ['preprints','trials','compare'];
+  document.querySelectorAll('.tab').forEach((t,i) => t.classList.toggle('active', names[i] === name));
+  document.querySelectorAll('.panel').forEach(p => p.classList.remove('active'));
+  document.getElementById('panel-'+name).classList.add('active');
+}
+
+// ══════════════════════════════════════════════════
+// AUTO-REFRESH
+// ══════════════════════════════════════════════════
+let autoRefreshOn  = false;
+let refreshTimer   = null;
+let lastRefreshAt  = null;
+let knownDois      = new Set();
+let newSinceRefresh = 0;
+
+function toggleAutoRefresh() {
+  autoRefreshOn = !autoRefreshOn;
+  document.getElementById('toggle-sw').classList.toggle('on', autoRefreshOn);
+  if (autoRefreshOn) {
+    scheduleRefresh();
+    updateRefreshStatus();
+  } else {
+    clearTimeout(refreshTimer);
+    document.getElementById('last-update').innerHTML =
+      lastRefreshAt ? `Dernière MàJ : <span class="next">${fmtTime(lastRefreshAt)}</span>` : '—';
+  }
+}
+
+function onIntervalChange() {
+  if (autoRefreshOn) {
+    clearTimeout(refreshTimer);
+    scheduleRefresh();
+    updateRefreshStatus();
+  }
+}
+
+function scheduleRefresh() {
+  const ms = parseInt(document.getElementById('refresh-interval').value);
+  clearTimeout(refreshTimer);
+  refreshTimer = setTimeout(async () => {
+    await runAutoRefresh();
+    if (autoRefreshOn) scheduleRefresh();
+  }, ms);
+}
+
+async function runAutoRefresh() {
+  document.getElementById('refreshing-indicator').style.display = 'flex';
+  const prevDois = new Set(knownDois);
+  await searchPreprints(true); // silent mode
+  document.getElementById('refreshing-indicator').style.display = 'none';
+  lastRefreshAt = new Date();
+  // Count new papers
+  newSinceRefresh = [...knownDois].filter(d => !prevDois.has(d)).length;
+  updateRefreshStatus();
+}
+
+async function manualRefresh() {
+  document.getElementById('refreshing-indicator').style.display = 'flex';
+  const prevDois = new Set(knownDois);
+  await searchPreprints(true);
+  document.getElementById('refreshing-indicator').style.display = 'none';
+  lastRefreshAt = new Date();
+  newSinceRefresh = [...knownDois].filter(d => !prevDois.has(d)).length;
+  updateRefreshStatus();
+  if (autoRefreshOn) { clearTimeout(refreshTimer); scheduleRefresh(); }
+}
+
+function updateRefreshStatus() {
+  const ms   = parseInt(document.getElementById('refresh-interval').value);
+  const next = new Date(Date.now() + ms);
+  const newBadge = newSinceRefresh > 0 ? `<span class="new-badge">+${newSinceRefresh} nouveau${newSinceRefresh>1?'x':''}</span>` : '';
+  const dot  = autoRefreshOn ? '<span class="pulse-dot"></span>' : '';
+  const last = lastRefreshAt ? `${dot}MàJ : <span class="next">${fmtTime(lastRefreshAt)}</span>${newBadge}` : '—';
+  const nxt  = autoRefreshOn ? ` · Prochaine : <span class="next">${fmtTime(next)}</span>` : '';
+  document.getElementById('last-update').innerHTML = last + nxt;
+}
+
+function fmtTime(d) {
+  return d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+}
+
+// ══════════════════════════════════════════════════
+// INIT — default dates
+// ══════════════════════════════════════════════════
+(function init() {
+  const today = new Date();
+  const d30   = new Date(); d30.setDate(d30.getDate() - 30);
+  const fmt   = d => d.toISOString().split('T')[0];
+  document.getElementById('date-from').value = fmt(d30);
+  document.getElementById('date-to').value   = fmt(today);
+  // Auto-search au chargement
+  document.getElementById('category').value = 'microbiology';
+  document.getElementById('keyword').value  = 'microbiome';
+  searchPreprints();
+})();
+
+// ══════════════════════════════════════════════════
+// PRESETS
+// ══════════════════════════════════════════════════
+function setPresetPreprint(cat, kw) {
+  document.getElementById('category').value = cat;
+  document.getElementById('keyword').value  = kw;
+  searchPreprints();
+}
+function setPresetTrial(cond, intr, spons, status, loc) {
+  document.getElementById('t-condition').value   = cond    || '';
+  document.getElementById('t-intervention').value= intr    || '';
+  document.getElementById('t-sponsor').value     = spons   || '';
+  document.getElementById('t-status').value      = status  || '';
+  document.getElementById('t-location').value    = loc     || '';
+  searchTrials();
+}
+
+// ══════════════════════════════════════════════════
+// PREPRINTS — bioRxiv / medRxiv API
+// ══════════════════════════════════════════════════
+async function searchPreprints(silent = false) {
+  const server   = document.getElementById('server').value;
+  const category = document.getElementById('category').value.trim();
+  const keyword  = document.getElementById('keyword').value.trim().toLowerCase();
+  const dateFrom = document.getElementById('date-from').value || (() => {
+    const d = new Date(); d.setDate(d.getDate()-30); return d.toISOString().split('T')[0];
+  })();
+  const dateTo   = document.getElementById('date-to').value || new Date().toISOString().split('T')[0];
+
+  if (!silent) {
+    setLoading('preprint-results', `Interrogation de ${server}.org…`);
+    document.getElementById('preprint-count').textContent = '—';
+    document.getElementById('preprint-error').innerHTML   = '';
+  }
+
+  try {
+    let all = [];
+    for (let cursor = 0; cursor <= 100; cursor += 100) {
+      const url  = `https://api.biorxiv.org/details/${server}/${dateFrom}/${dateTo}/${cursor}/json`;
+      const resp = await fetch(url);
+      if (!resp.ok) throw new Error(`Erreur API ${resp.status}`);
+      const data  = await resp.json();
+      const items = data.collection || [];
+      all = all.concat(items);
+      if (items.length < 100) break;
+    }
+
+    // Dédoublonnage par DOI (garder version la plus récente)
+    const seen = {};
+    all = all.filter(p => { if (seen[p.doi]) return false; seen[p.doi] = true; return true; });
+
+    // Filtre catégorie
+    if (category) all = all.filter(p => (p.category||'').toLowerCase() === category.toLowerCase());
+
+    // Filtre mot-clé (AND multi-mots)
+    if (keyword) {
+      const words = keyword.split(/\s+/).filter(Boolean);
+      all = all.filter(p => {
+        const txt = ((p.title||'') + ' ' + (p.abstract||'')).toLowerCase();
+        return words.every(w => txt.includes(w));
+      });
+    }
+
+    preprintData = all;
+    // Mettre à jour les DOIs connus pour détecter les nouveautés
+    all.forEach(p => p.doi && knownDois.add(p.doi));
+    // En mode silencieux, marquer les nouveaux avant de re-rendre
+    if (silent) {
+      const prevSet = new Set([...knownDois].filter(d => preprintData.some(p => p.doi === d)));
+      all.forEach(p => { p._new = !prevSet.has(p.doi); });
+    } else {
+      all.forEach(p => { p._new = false; });
+    }
+    renderPreprints(all);
+    if (!silent) { lastRefreshAt = new Date(); updateRefreshStatus(); }
+  } catch(err) {
+    const isCors = err.message.includes('fetch') || err.message.includes('Failed') || err.message.includes('NetworkError');
+    const tip = isCors
+      ? `<br><small>Si le fichier est ouvert en <strong>file://</strong>, essayez de le <strong>glisser dans Chrome/Edge</strong> ou d'utiliser un serveur local.</small>`
+      : `<br><small>Vérifiez votre connexion ou élargissez la plage de dates.</small>`;
+    document.getElementById('preprint-results').innerHTML =
+      `<div class="error-inline">Erreur API bioRxiv : <code>${err.message}</code>${tip}</div>`;
+  }
+}
+
+function renderPreprints(data) {
+  const count = data.length;
+  document.getElementById('preprint-count').innerHTML =
+    count ? `<strong>${count}</strong> preprint${count>1?'s':''} trouvé${count>1?'s':''}` : '0 résultat';
+
+  if (!count) {
+    document.getElementById('preprint-results').innerHTML =
+      `<div class="empty"><div class="empty-icon">🔍</div><div>Aucun preprint pour ces critères.</div><div class="empty-sub">Essayez d'élargir la période ou de changer les filtres.</div></div>`;
+    return;
+  }
+
+  const catBadge = { microbiology:'b-blue', genomics:'b-green', immunology:'b-orange',
+    neuroscience:'b-gray', physiology:'b-gray', epidemiology:'b-orange', 'cancer biology':'b-red' };
+
+  const html = data.slice(0,60).map(p => {
+    const authors = (p.authors||'').split(';').slice(0,3).map(a=>a.trim()).join(', ')
+                  + (p.authors && p.authors.split(';').length > 3 ? ' et al.' : '');
+    const cls   = catBadge[p.category] || 'b-gray';
+    const doi   = p.doi || '';
+    const abs   = (p.abstract||'').slice(0,260).replace(/[<>]/g, c => c==='<'?'&lt;':'&gt;');
+    const cardClass = p._new ? 'card success' : (p.version > 1 ? 'card warning' : 'card');
+    const newBadge  = p._new ? '<span class="new-badge" style="margin-left:6px;">NOUVEAU</span>' : '';
+    return `
+    <div class="${cardClass}">
+      <div class="card-head">
+        <div class="card-title">${(p.title||'—').replace(/[<>]/g,c=>c==='<'?'&lt;':'&gt;')}${newBadge}</div>
+        <span class="badge ${cls}">${p.category||'—'}</span>
+      </div>
+      <div class="card-meta">
+        <span>📅 ${p.date||'—'}</span>
+        <span>👥 ${authors||'—'}</span>
+        ${p.version ? `<span class="badge b-gray">v${p.version}</span>` : ''}
+      </div>
+      ${abs ? `<div class="card-abstract">${abs}…</div>` : ''}
+      <div class="card-footer">
+        <a class="card-link" href="https://doi.org/${doi}" target="_blank">Voir le preprint →</a>
+        <button class="card-link" onclick="addNctDirect('');switchTab('compare');" style="display:none;"></button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('preprint-results').innerHTML = `<div class="cards-grid">${html}</div>`;
+}
+
+// ══════════════════════════════════════════════════
+// ESSAIS CLINIQUES — ClinicalTrials.gov v2 API
+// ══════════════════════════════════════════════════
+async function searchTrials() {
+  const cond  = document.getElementById('t-condition').value.trim();
+  const intr  = document.getElementById('t-intervention').value.trim();
+  const spons = document.getElementById('t-sponsor').value.trim();
+  const stat  = document.getElementById('t-status').value;
+  const phase = document.getElementById('t-phase').value;
+  const loc   = document.getElementById('t-location').value.trim();
+
+  document.getElementById('trial-error').innerHTML = '';
+  if (!cond && !intr && !spons) {
+    document.getElementById('trial-error').innerHTML =
+      '<span class="error-inline">Entrez au moins un critère.</span>';
+    return;
+  }
+
+  setLoading('trial-results', 'Interrogation de ClinicalTrials.gov…');
+  document.getElementById('trial-count').textContent = '—';
+
+  const p = new URLSearchParams({ pageSize: 30, format: 'json' });
+  if (cond)  p.set('query.cond',  cond);
+  if (intr)  p.set('query.intr',  intr);
+  if (spons) p.set('query.spons', spons);
+  if (loc)   p.set('query.locn',  loc);
+  if (stat)  p.set('filter.overallStatus', stat);
+  if (phase) p.set('filter.phase', phase);
+
+  try {
+    const resp = await fetch(`https://clinicaltrials.gov/api/v2/studies?${p}`);
+    if (!resp.ok) throw new Error(`Erreur API ${resp.status}`);
+    const data = await resp.json();
+    trialData  = data.studies || [];
+    renderTrials(trialData, data.totalCount);
+  } catch(err) {
+    document.getElementById('trial-results').innerHTML =
+      `<div class="error-inline">Erreur : ${err.message}</div>`;
+  }
+}
+
+function renderTrials(studies, total) {
+  if (!studies.length) {
+    document.getElementById('trial-count').innerHTML = '<strong>0</strong> essai';
+    document.getElementById('trial-results').innerHTML =
+      `<div class="empty"><div class="empty-icon">🔍</div><div>Aucun essai trouvé.</div></div>`;
+    return;
+  }
+
+  const totalStr = total ? ` (${total} au total sur ClinicalTrials.gov)` : '';
+  document.getElementById('trial-count').innerHTML =
+    `<strong>${studies.length}</strong> essais affichés${totalStr}`;
+
+  const statusLabel = {
+    RECRUITING: 'En recrutement', COMPLETED: 'Terminé',
+    ACTIVE_NOT_RECRUITING: 'Actif', NOT_YET_RECRUITING: 'À venir',
+    TERMINATED: 'Arrêté', WITHDRAWN: 'Retiré', UNKNOWN: '?'
+  };
+  const statusBadge = {
+    RECRUITING:'b-green', COMPLETED:'b-gray', ACTIVE_NOT_RECRUITING:'b-orange',
+    NOT_YET_RECRUITING:'b-navy', TERMINATED:'b-red', WITHDRAWN:'b-red'
+  };
+
+  const html = studies.map(s => {
+    const ps   = s.protocolSection || {};
+    const id   = ps.identificationModule || {};
+    const st   = ps.statusModule || {};
+    const spon = ps.sponsorCollaboratorsModule || {};
+    const cond = ps.conditionsModule || {};
+    const intv = ps.interventionsModule || {};
+    const des  = ps.designModule || {};
+    const out  = ps.outcomesModule || {};
+    const desc = ps.descriptionModule || {};
+    const locs = ps.contactsLocationsModule || {};
+    const elig = ps.eligibilityModule || {};
+
+    const nctId   = id.nctId || '—';
+    const title   = (id.briefTitle||'—').replace(/[<>]/g,c=>c==='<'?'&lt;':'&gt;');
+    const status  = st.overallStatus || 'UNKNOWN';
+    const phases  = (des.phases||[]).join('+') || 'N/A';
+    const sponsor = (spon.leadSponsor||{}).name || '—';
+    const enroll  = (des.enrollmentInfo||{}).count;
+    const start   = (st.startDateStruct||{}).date || '—';
+    const end     = (st.primaryCompletionDateStruct||{}).date || '—';
+    const conditions   = (cond.conditions||[]).slice(0,3).join(', ');
+    const interventions= (intv.interventions||[]).slice(0,3).map(i=>i.name).join(', ');
+    const countries    = [...new Set((locs.locations||[]).map(l=>l.country).filter(Boolean))].slice(0,4).join(', ');
+    const nSites       = (locs.locations||[]).length;
+    const primaryEp    = ((out.primaryOutcomes||[])[0]||{}).measure || '';
+    const summary      = (desc.briefSummary||'').slice(0,220);
+    const age          = elig.minimumAge ? `${elig.minimumAge} – ${elig.maximumAge||'?'}` : '';
+    const badgeClass   = statusBadge[status] || 'b-gray';
+    const cardClass    = status === 'RECRUITING' ? 'card success' : (status === 'TERMINATED' ? 'card warning' : 'card');
+
+    return `
+    <div class="${cardClass}">
+      <div class="card-head">
+        <div class="card-title">${title}</div>
+        <span class="badge ${badgeClass}">${statusLabel[status]||status}</span>
+      </div>
+      <div class="card-meta">
+        <span class="nct">${nctId}</span>
+        <span>Phase ${phases}</span>
+        ${enroll ? `<span>N = ${enroll}</span>` : ''}
+        <span>📅 ${start} → ${end}</span>
+      </div>
+      <div class="card-meta">
+        <span>🏛 ${sponsor}</span>
+        ${countries ? `<span>📍 ${countries} (${nSites} site${nSites>1?'s':''})</span>` : ''}
+        ${age ? `<span>Âge : ${age}</span>` : ''}
+      </div>
+      ${conditions    ? `<div class="card-detail"><strong>Conditions :</strong> ${conditions}</div>` : ''}
+      ${interventions ? `<div class="card-detail"><strong>Interventions :</strong> ${interventions}</div>` : ''}
+      ${primaryEp     ? `<div class="card-detail highlight"><strong>Endpoint primaire :</strong> ${primaryEp.slice(0,120)}${primaryEp.length>120?'…':''}</div>` : ''}
+      ${summary       ? `<div class="card-abstract" style="margin-top:8px;">${summary.replace(/[<>]/g,c=>c==='<'?'&lt;':'&gt;')}…</div>` : ''}
+      <div class="card-footer">
+        <a class="card-link" href="https://clinicaltrials.gov/study/${nctId}" target="_blank">Voir sur ClinicalTrials →</a>
+        <button class="card-link" onclick="addNctDirect('${nctId}');switchTab('compare');">Ajouter à l'analyse →</button>
+      </div>
+    </div>`;
+  }).join('');
+
+  document.getElementById('trial-results').innerHTML = `<div class="cards-grid">${html}</div>`;
+}
+
+// ══════════════════════════════════════════════════
+// ANALYSE COMPARATIVE
+// ══════════════════════════════════════════════════
+function addNct() {
+  const inp = document.getElementById('nct-input');
+  let val   = inp.value.trim().toUpperCase().replace(/\s+/g,'');
+  if (!val) return;
+  if (!val.startsWith('NCT')) val = 'NCT' + val;
+  if (!nctList.includes(val)) { nctList.push(val); renderNctTags(); }
+  inp.value = '';
+}
+function addNctDirect(nct) {
+  if (nct && !nctList.includes(nct)) { nctList.push(nct); renderNctTags(); }
+}
+function removeNct(nct) { nctList = nctList.filter(n => n !== nct); renderNctTags(); }
+function renderNctTags() {
+  document.getElementById('nct-tags').innerHTML = nctList.map(n => `
+    <div class="nct-tag">${n}<button onclick="removeNct('${n}')" title="Retirer">×</button></div>`).join('');
+  document.getElementById('compare-btn').disabled = nctList.length < 1;
+}
+function clearComparison() {
+  nctList = [];
+  renderNctTags();
+  document.getElementById('compare-results').innerHTML =
+    `<div class="empty"><div class="empty-icon">📊</div><div>Ajoutez des identifiants NCT et cliquez "Analyser"</div></div>`;
+}
+
+async function runComparison() {
+  if (!nctList.length) return;
+  setLoading('compare-results', `Chargement de ${nctList.length} essai(s)…`);
+
+  const results = [];
+  for (const nct of nctList) {
+    try {
+      const resp = await fetch(`https://clinicaltrials.gov/api/v2/studies/${nct}?format=json`);
+      if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+      const data = await resp.json();
+      results.push({ nct, d: data, err: null });
+    } catch(e) {
+      results.push({ nct, d: null, err: e.message });
+    }
+  }
+  renderComparison(results);
+}
+
+function renderComparison(results) {
+  const get = (d, fn) => { try { return fn(d); } catch { return '—'; } };
+
+  // Stat strip
+  const recruiting = results.filter(r => r.d && (r.d.protocolSection?.statusModule?.overallStatus === 'RECRUITING')).length;
+  const statsHtml  = `
+    <div class="stat-strip">
+      <div class="stat-item"><div class="stat-val">${results.length}</div><div class="stat-lbl">Essais analysés</div></div>
+      <div class="stat-item"><div class="stat-val" style="color:var(--success)">${recruiting}</div><div class="stat-lbl">En recrutement</div></div>
+    </div>`;
+
+  const rows = [
+    ['Titre',             d => get(d, x => x.protocolSection.identificationModule.briefTitle.slice(0,130))],
+    ['Statut',            d => get(d, x => ({RECRUITING:'En recrutement',COMPLETED:'Terminé',ACTIVE_NOT_RECRUITING:'Actif',NOT_YET_RECRUITING:'À venir',TERMINATED:'Arrêté'})[x.protocolSection.statusModule.overallStatus] || x.protocolSection.statusModule.overallStatus)],
+    ['Phase',             d => get(d, x => (x.protocolSection.designModule.phases||[]).join('+') || 'N/A')],
+    ['Type étude',        d => get(d, x => x.protocolSection.designModule.studyType || '—')],
+    ['Sponsor',           d => get(d, x => x.protocolSection.sponsorCollaboratorsModule.leadSponsor.name)],
+    ['Effectif (N)',      d => get(d, x => x.protocolSection.designModule.enrollmentInfo.count)],
+    ['Conditions',        d => get(d, x => (x.protocolSection.conditionsModule.conditions||[]).join(' ; '))],
+    ['Interventions',     d => get(d, x => (x.protocolSection.interventionsModule.interventions||[]).map(i=>i.name).join(' ; '))],
+    ['Endpoint 1°',       d => get(d, x => (x.protocolSection.outcomesModule.primaryOutcomes||[]).map(o=>o.measure+(o.timeFrame?` (${o.timeFrame})`:``) ).join('\n'))],
+    ['Endpoints 2°',      d => get(d, x => (x.protocolSection.outcomesModule.secondaryOutcomes||[]).slice(0,4).map(o=>'• '+o.measure).join('\n'))],
+    ['Âge éligibilité',  d => get(d, x => `${x.protocolSection.eligibilityModule.minimumAge||'?'} – ${x.protocolSection.eligibilityModule.maximumAge||'?'}`)],
+    ['Sexe',              d => get(d, x => x.protocolSection.eligibilityModule.sex || '—')],
+    ['Pays',              d => get(d, x => [...new Set((x.protocolSection.contactsLocationsModule.locations||[]).map(l=>l.country).filter(Boolean))].join(', '))],
+    ['Nb sites',          d => get(d, x => (x.protocolSection.contactsLocationsModule.locations||[]).length)],
+    ['Date début',        d => get(d, x => x.protocolSection.statusModule.startDateStruct.date)],
+    ['Fin prévue',        d => get(d, x => x.protocolSection.statusModule.primaryCompletionDateStruct.date)],
+    ['Investigateur PI',  d => get(d, x => x.protocolSection.sponsorCollaboratorsModule.responsibleParty?.investigatorFullName || '—')],
+  ];
+
+  let table = `<div class="table-wrap"><table class="compare-table">
+    <thead><tr><th>Critère</th>${results.map(r=>`<th>${r.nct}</th>`).join('')}</tr></thead>
+    <tbody>`;
+
+  for (const [lbl, fn] of rows) {
+    const isEp = lbl.includes('Endpoint');
+    table += `<tr><td class="row-label">${lbl}</td>`;
+    for (const r of results) {
+      if (r.err) { table += `<td style="color:var(--danger)">Erreur: ${r.err}</td>`; continue; }
+      const val = String(fn(r.d) || '—').replace(/[<>]/g, c=>c==='<'?'&lt;':'&gt;').replace(/\n/g,'<br>');
+      const cls = isEp ? ' class="highlight-cell"' : '';
+      table += `<td${cls}>${val}</td>`;
+    }
+    table += '</tr>';
+  }
+
+  table += '</tbody></table></div>';
+
+  const links = results.map(r =>
+    `<a class="card-link" href="https://clinicaltrials.gov/study/${r.nct}" target="_blank">${r.nct} →</a>`
+  ).join('');
+
+  document.getElementById('compare-results').innerHTML =
+    statsHtml +
+    `<div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:16px;">${links}</div>` +
+    table;
+}
+
+// ══════════════════════════════════════════════════
+// EXPORT CSV
+// ══════════════════════════════════════════════════
+function exportCSV(type) {
+  let csv = '', fname = '';
+  const q = s => '"' + String(s||'').replace(/"/g,"'") + '"';
+
+  if (type === 'preprints' && preprintData.length) {
+    csv  = 'DOI,Titre,Auteurs,Date,Categorie,Serveur\n';
+    preprintData.forEach(p => {
+      csv += [p.doi, p.title, p.authors, p.date, p.category, p.server||'biorxiv'].map(q).join(',') + '\n';
+    });
+    fname = `carebiome_preprints_${new Date().toISOString().slice(0,10)}.csv`;
+  } else if (type === 'trials' && trialData.length) {
+    csv  = 'NCT_ID,Titre,Statut,Phase,Sponsor,Effectif,Debut,Fin,Pays\n';
+    trialData.forEach(s => {
+      const ps   = s.protocolSection || {};
+      const id   = ps.identificationModule || {};
+      const st   = ps.statusModule || {};
+      const spon = ps.sponsorCollaboratorsModule || {};
+      const des  = ps.designModule || {};
+      const locs = ps.contactsLocationsModule || {};
+      const countries = [...new Set((locs.locations||[]).map(l=>l.country).filter(Boolean))].join(';');
+      csv += [
+        id.nctId, id.briefTitle, st.overallStatus,
+        (des.phases||[]).join('+'), (spon.leadSponsor||{}).name,
+        (des.enrollmentInfo||{}).count, (st.startDateStruct||{}).date,
+        (st.primaryCompletionDateStruct||{}).date, countries
+      ].map(q).join(',') + '\n';
+    });
+    fname = `carebiome_trials_${new Date().toISOString().slice(0,10)}.csv`;
+  } else {
+    alert("Aucune donnée à exporter. Lancez d'abord une recherche."); return;
+  }
+  const blob = new Blob(['\uFEFF'+csv], { type:'text/csv;charset=utf-8;' });
+  const a = Object.assign(document.createElement('a'), { href:URL.createObjectURL(blob), download:fname });
+  a.click(); URL.revokeObjectURL(a.href);
+}
+
+// ══════════════════════════════════════════════════
+// HELPERS
+// ══════════════════════════════════════════════════
+function setLoading(id, msg) {
+  document.getElementById(id).innerHTML =
+    `<div class="loading"><div class="spinner"></div>${msg}</div>`;
+}
+</script>
+</body>
+</html>
