@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carebiome — Simulateur ROI Partenaire</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', sans-serif; background: #0D1A2E; color: #E8F4F8; min-height: 100vh; padding: 32px; }
+
+  header { text-align: center; margin-bottom: 36px; }
+  header h1 { font-size: 26px; color: #00B4D8; letter-spacing: 3px; font-weight: 700; }
+  header .sub { color: #7BA7BC; font-size: 13px; margin-top: 6px; }
+
+  .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 24px; max-width: 960px; margin: 0 auto; }
+
+  .card { background: #111D30; border-radius: 14px; padding: 28px; }
+  .card h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #7BA7BC; margin-bottom: 24px; }
+
+  /* SLIDERS */
+  .slider-field { margin-bottom: 20px; }
+  .slider-field .row { display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 7px; }
+  .slider-field label { font-size: 12px; color: #B0C8D4; }
+  .slider-field .val { font-size: 18px; font-weight: 700; color: #00B4D8; }
+  .slider-field .unit { font-size: 11px; color: #7BA7BC; margin-left: 3px; }
+  input[type=range] { width: 100%; accent-color: #00B4D8; cursor: pointer; }
+  .hint { font-size: 10px; color: #4A6580; margin-top: 4px; }
+
+  /* RÉSULTATS */
+  .result-row { display: flex; justify-content: space-between; align-items: center; padding: 13px 0; border-bottom: 1px solid rgba(255,255,255,0.05); }
+  .result-row:last-child { border-bottom: none; }
+  .result-label { font-size: 12px; color: #7BA7BC; }
+  .result-label small { display: block; font-size: 10px; color: #4A6580; margin-top: 2px; }
+  .result-value { font-size: 15px; font-weight: 700; }
+  .green { color: #06D6A0; }
+  .blue { color: #00B4D8; }
+  .yellow { color: #F59E0B; }
+
+  /* TOTAL HERO */
+  .total-hero { background: linear-gradient(135deg, #0D1A2E, #1B2A4A); border: 2px solid #06D6A0; border-radius: 14px; padding: 28px; text-align: center; max-width: 960px; margin: 24px auto 0; }
+  .total-hero .label { font-size: 11px; text-transform: uppercase; letter-spacing: 2px; color: #7BA7BC; margin-bottom: 10px; }
+  .total-hero .amount { font-size: 52px; font-weight: 700; color: #06D6A0; line-height: 1; }
+  .total-hero .sublabel { font-size: 12px; color: #7BA7BC; margin-top: 8px; }
+  .total-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px; margin-top: 24px; }
+  .total-pill { background: rgba(0,180,216,0.08); border: 1px solid rgba(0,180,216,0.2); border-radius: 10px; padding: 14px; }
+  .total-pill .pval { font-size: 22px; font-weight: 700; color: #00B4D8; }
+  .total-pill .plbl { font-size: 10px; color: #7BA7BC; margin-top: 4px; }
+
+  /* BREAKEVEN */
+  .be-section { max-width: 960px; margin: 24px auto 0; background: #111D30; border-radius: 14px; padding: 24px; }
+  .be-section h2 { font-size: 12px; font-weight: 700; text-transform: uppercase; letter-spacing: 1.5px; color: #7BA7BC; margin-bottom: 20px; }
+  .be-timeline { display: flex; gap: 0; }
+  .be-month { flex: 1; text-align: center; }
+  .be-bar-wrap { height: 60px; display: flex; align-items: flex-end; justify-content: center; padding-bottom: 6px; }
+  .be-bar { width: 70%; border-radius: 3px 3px 0 0; transition: height .4s, background .4s; }
+  .be-mlabel { font-size: 9px; color: #4A6580; }
+  .be-line { position: relative; }
+  .be-threshold { position: absolute; left: 0; right: 0; border-top: 2px dashed #F59E0B; }
+  .be-legend { display: flex; gap: 20px; margin-top: 16px; font-size: 11px; color: #7BA7BC; align-items: center; }
+  .be-legend span { display: inline-block; width: 12px; height: 12px; border-radius: 2px; margin-right: 5px; vertical-align: middle; }
+
+  /* AN 2 NOTE */
+  .note-an2 { max-width: 960px; margin: 16px auto 0; background: rgba(0,180,216,0.06); border: 1px solid rgba(0,180,216,0.2); border-radius: 10px; padding: 16px 20px; font-size: 11px; color: #7BA7BC; line-height: 1.8; }
+  .note-an2 strong { color: #00B4D8; }
+
+  /* PRINT */
+  @media print {
+    body { background: white; color: #111; padding: 16px; }
+    header h1, .card h2 { color: #0077B6; }
+    .card { background: #f8f9fa; border: 1px solid #ddd; }
+    .total-hero { background: #f0f8ff; border-color: #0077B6; }
+    .total-hero .amount { color: #0077B6; }
+    .result-value.green, .total-pill .pval { color: #006600; }
+    .result-label, .total-pill .plbl, .be-mlabel { color: #555; }
+    .be-legend { color: #555; }
+    .note-an2 { background: #f8f9fa; border-color: #ccc; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>CAREBIOME — SIMULATEUR ROI</h1>
+  <div class="sub">Calcul du retour sur investissement pour un centre partenaire — Année 1</div>
+</header>
+
+<div class="grid">
+  <!-- PARAMÈTRES -->
+  <div class="card">
+    <h2>Paramètres du centre</h2>
+
+    <div class="slider-field">
+      <div class="row">
+        <label>Kits vendus par mois</label>
+        <div><span class="val" id="v-kits">15</span><span class="unit">kits/mois</span></div>
+      </div>
+      <input type="range" min="1" max="80" value="15" id="sl-kits" oninput="calc()">
+      <div class="hint">Estimation conservatrice pour un centre de 100-200 bilans/mois : 5-10%</div>
+    </div>
+
+    <div class="slider-field">
+      <div class="row">
+        <label>Prix de vente au patient</label>
+        <div><span class="val" id="v-prix">169</span><span class="unit">€ TTC</span></div>
+      </div>
+      <input type="range" min="149" max="249" step="10" value="169" id="sl-prix" oninput="calc()">
+      <div class="hint">Prix Carebiome recommandé : 169 € (flexible selon positionnement)</div>
+    </div>
+
+    <div class="slider-field">
+      <div class="row">
+        <label>Prix d'achat kit (centre)</label>
+        <div><span class="val" id="v-achat">130</span><span class="unit">€ HT</span></div>
+      </div>
+      <input type="range" min="110" max="150" step="5" value="130" id="sl-achat" oninput="calc()">
+      <div class="hint">Tarif partenaire négocié avec Carebiome</div>
+    </div>
+
+    <div class="slider-field">
+      <div class="row">
+        <label>Taux de souscription abonnement</label>
+        <div><span class="val" id="v-abo">30</span><span class="unit">%</span></div>
+      </div>
+      <input type="range" min="0" max="70" value="30" id="sl-abo" oninput="calc()">
+      <div class="hint">% des acheteurs de kit qui prennent un abonnement app (29 €/mois)</div>
+    </div>
+
+    <div class="slider-field">
+      <div class="row">
+        <label>Commission sur abonnements</label>
+        <div><span class="val" id="v-commission">12</span><span class="unit">%</span></div>
+      </div>
+      <input type="range" min="5" max="25" value="12" id="sl-commission" oninput="calc()">
+      <div class="hint">% reversé au centre sur chaque abonnement actif chaque mois</div>
+    </div>
+  </div>
+
+  <!-- RÉSULTATS DÉTAILLÉS -->
+  <div class="card">
+    <h2>Détail du calcul — Année 1</h2>
+
+    <div class="result-row">
+      <div class="result-label">
+        Kits vendus (an 1)
+        <small id="f-kits-detail">15 kits × 12 mois</small>
+      </div>
+      <div class="result-value blue" id="r-kits-total">180 kits</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">
+        CA kits généré
+        <small id="f-ca-detail">180 × 169 €</small>
+      </div>
+      <div class="result-value yellow" id="r-ca">30,4 k€</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">
+        Marge brute kits
+        <small id="f-marge-detail">180 × (169 - 130) €</small>
+      </div>
+      <div class="result-value green" id="r-marge">7,0 k€</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">
+        Abonnés actifs fin an 1
+        <small id="f-abo-detail">54 patients abonnés</small>
+      </div>
+      <div class="result-value blue" id="r-abonnes">54</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">
+        Commission abonnements an 1
+        <small id="f-commission-detail">accumulation progressive × 12%</small>
+      </div>
+      <div class="result-value green" id="r-commission">1,4 k€</div>
+    </div>
+
+    <div class="result-row" style="padding-top:16px;">
+      <div class="result-label" style="font-weight:700;color:#E8F4F8;font-size:13px;">
+        MARGE NETTE TOTALE AN 1
+      </div>
+      <div class="result-value green" style="font-size:20px;" id="r-total">8,4 k€</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label">
+        Commission an 2 (régime permanent)
+        <small id="f-an2-detail">54 abonnés × 29 € × 12 mois × 12%</small>
+      </div>
+      <div class="result-value green" id="r-an2">2,3 k€</div>
+    </div>
+
+    <div class="result-row">
+      <div class="result-label" style="font-weight:700;color:#E8F4F8;font-size:13px;">
+        MARGE NETTE TOTALE AN 2+
+      </div>
+      <div class="result-value green" style="font-size:20px;" id="r-total-an2">9,3 k€</div>
+    </div>
+  </div>
+</div>
+
+<!-- HERO TOTAL -->
+<div class="total-hero">
+  <div class="label">Marge nette générée — Année 1</div>
+  <div class="amount" id="hero-total">+8,4 k€</div>
+  <div class="sublabel" id="hero-sub">pour 15 kits/mois vendus à 169 € — achetés 130 € HT</div>
+  <div class="total-grid">
+    <div class="total-pill">
+      <div class="pval" id="p-marge-kit">39 €</div>
+      <div class="plbl">Marge par kit vendu</div>
+    </div>
+    <div class="total-pill">
+      <div class="pval" id="p-breakeven">3 mois</div>
+      <div class="plbl">Break-even (marge cumul. = 1 mois stock)</div>
+    </div>
+    <div class="total-pill">
+      <div class="pval" id="p-roi-pct">—</div>
+      <div class="plbl">ROI sur prix d'achat kits an 1</div>
+    </div>
+  </div>
+</div>
+
+<!-- BREAKEVEN TIMELINE -->
+<div class="be-section">
+  <h2>Accumulation de marge mensuelle — Année 1</h2>
+  <div style="position:relative;">
+    <div class="be-timeline" id="be-chart"></div>
+  </div>
+  <div class="be-legend">
+    <span style="background:#00B4D8"></span> Marge kits mensuelle
+    <span style="background:#06D6A0;margin-left:10px;"></span> Commission abonnements mensuelle
+    <span style="border: 2px dashed #F59E0B;background:none;height:2px;width:20px;display:inline-block;vertical-align:middle;margin-left:10px;"></span> Seuil marge = coût 1 mois de stock
+  </div>
+</div>
+
+<!-- NOTE AN 2 -->
+<div class="note-an2">
+  <strong>Note méthodologique :</strong>
+  Les commissions sur abonnements sont calculées en <strong>accumulation progressive</strong> sur l'année 1 — les abonnés du mois 1 génèrent 12 mois de commission, ceux du mois 12 génèrent 1 mois.
+  En <strong>année 2+</strong>, tous les abonnés acquis sont actifs 12 mois complets → la commission est nettement plus élevée (régime permanent).
+  La marge sur kits est calculée sur la base prix de vente - prix d'achat (hors TVA).
+</div>
+
+<script>
+function calc() {
+  const kits       = parseInt(document.getElementById('sl-kits').value);
+  const prix       = parseInt(document.getElementById('sl-prix').value);
+  const achat      = parseInt(document.getElementById('sl-achat').value);
+  const aboRate    = parseInt(document.getElementById('sl-abo').value) / 100;
+  const commission = parseInt(document.getElementById('sl-commission').value) / 100;
+  const aboPrix    = 29; // fixe Carebiome
+
+  // Mise à jour labels sliders
+  document.getElementById('v-kits').textContent       = kits;
+  document.getElementById('v-prix').textContent       = prix;
+  document.getElementById('v-achat').textContent      = achat;
+  document.getElementById('v-abo').textContent        = Math.round(aboRate * 100);
+  document.getElementById('v-commission').textContent = Math.round(commission * 100);
+
+  // Calculs de base
+  const margeParKit   = prix - achat;
+  const kitsAn        = kits * 12;
+  const caAn          = kitsAn * prix;
+  const margeKitsAn   = kitsAn * margeParKit;
+  const abosParMois   = kits * aboRate;
+  const abonnesFinAn  = Math.round(abosParMois * 12);
+
+  // Commission an 1 : accumulation progressive (mois m = abosParMois×m actifs)
+  // Total = abosParMois × aboPrix × commission × Σ(1..12) = × 78
+  const commissionAn1 = abosParMois * aboPrix * commission * 78;
+
+  // Commission an 2 : régime permanent (tous les abonnés actifs 12 mois)
+  const commissionAn2 = abonnesFinAn * aboPrix * 12 * commission;
+
+  const totalAn1 = margeKitsAn + commissionAn1;
+  const totalAn2 = margeKitsAn + commissionAn2;
+
+  // Breakeven : mois pour que marge cumulée >= coût 1 mois de stock
+  const coutStockMensuel = kits * achat;
+  let cumul = 0, beMonth = 12;
+  for (let m = 1; m <= 12; m++) {
+    const margeKitsMois = kits * margeParKit;
+    const commissionMois = Math.round(abosParMois * m) * aboPrix * commission;
+    cumul += margeKitsMois + commissionMois;
+    if (cumul >= coutStockMensuel && beMonth === 12) beMonth = m;
+  }
+
+  // ROI sur prix achat
+  const investAn1 = kitsAn * achat;
+  const roiPct = Math.round((totalAn1 / investAn1) * 100);
+
+  const fmt = v => v >= 1000 ? (v/1000).toFixed(1) + ' k€' : Math.round(v) + ' €';
+  const fmtN = (v, u='') => Number.isInteger(v) ? v + u : v.toFixed(1) + u;
+
+  // Détail
+  document.getElementById('f-kits-detail').textContent      = `${kits} kits × 12 mois`;
+  document.getElementById('r-kits-total').textContent       = kitsAn + ' kits';
+  document.getElementById('f-ca-detail').textContent        = `${kitsAn} × ${prix} €`;
+  document.getElementById('r-ca').textContent               = fmt(caAn);
+  document.getElementById('f-marge-detail').textContent     = `${kitsAn} × (${prix} − ${achat}) €`;
+  document.getElementById('r-marge').textContent            = fmt(margeKitsAn);
+  document.getElementById('f-abo-detail').textContent       = `${abonnesFinAn} patients abonnés`;
+  document.getElementById('r-abonnes').textContent          = abonnesFinAn;
+  document.getElementById('f-commission-detail').textContent= `accumulation progressive × ${Math.round(commission*100)}%`;
+  document.getElementById('r-commission').textContent       = fmt(commissionAn1);
+  document.getElementById('r-total').textContent            = fmt(totalAn1);
+  document.getElementById('f-an2-detail').textContent       = `${abonnesFinAn} abonnés × ${aboPrix} € × 12 mois × ${Math.round(commission*100)}%`;
+  document.getElementById('r-an2').textContent              = fmt(commissionAn2);
+  document.getElementById('r-total-an2').textContent        = fmt(totalAn2);
+
+  // Hero
+  document.getElementById('hero-total').textContent = (totalAn1 >= 0 ? '+' : '') + fmt(totalAn1);
+  document.getElementById('hero-sub').textContent   = `pour ${kits} kits/mois vendus à ${prix} € — achetés ${achat} € HT`;
+  document.getElementById('p-marge-kit').textContent  = margeParKit + ' €';
+  document.getElementById('p-breakeven').textContent  = beMonth <= 1 ? '< 1 mois' : beMonth + ' mois';
+  document.getElementById('p-roi-pct').textContent    = '+' + roiPct + ' %';
+
+  // Graphique breakeven
+  renderChart(kits, margeParKit, abosParMois, aboPrix, commission, coutStockMensuel);
+}
+
+function renderChart(kits, margeParKit, abosParMois, aboPrix, commission, seuil) {
+  const chart = document.getElementById('be-chart');
+  chart.innerHTML = '';
+
+  const months = [];
+  const MAX_H = 100;
+  let maxVal = seuil * 1.3;
+
+  for (let m = 1; m <= 12; m++) {
+    const mk = kits * margeParKit;
+    const mc = Math.round(abosParMois * m) * aboPrix * commission;
+    months.push({ mk, mc, total: mk + mc });
+    maxVal = Math.max(maxVal, mk + mc);
+  }
+
+  const seuilPct = Math.min(98, Math.round((seuil / maxVal) * MAX_H));
+
+  months.forEach((d, i) => {
+    const kitH   = Math.round((d.mk / maxVal) * MAX_H);
+    const comH   = Math.round((d.mc / maxVal) * MAX_H);
+    const reached = d.total >= seuil;
+
+    const col = document.createElement('div');
+    col.className = 'be-month';
+    col.innerHTML = `
+      <div class="be-bar-wrap" style="position:relative;height:${MAX_H+10}px;align-items:flex-end;">
+        <div style="width:70%;display:flex;flex-direction:column;align-items:stretch;position:relative;">
+          <div style="height:${comH}px;background:${reached?'#06D6A0':'rgba(6,214,160,0.4)'};border-radius:3px 3px 0 0;"></div>
+          <div style="height:${kitH}px;background:${reached?'#00B4D8':'rgba(0,180,216,0.4)'};"></div>
+        </div>
+        <div style="position:absolute;bottom:${seuilPct}px;left:0;right:0;border-top:2px dashed #F59E0B;"></div>
+      </div>
+      <div class="be-mlabel">M${i+1}</div>
+    `;
+    chart.appendChild(col);
+  });
+}
+
+calc();
+</script>
+</body>
+</html>
