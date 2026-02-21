@@ -1,0 +1,750 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Carebiome — Financement Public</title>
+<style>
+:root {
+  --bg:      #142B52;
+  --primary: #1C3B6E;
+  --card:    #1A3768;
+  --border:  #285299;
+  --accent:  #00B4D8;
+  --accent2: #0077B6;
+  --success: #06D6A0;
+  --warn:    #FFB703;
+  --danger:  #EF476F;
+  --light:   #E8F4FD;
+  --gray:    #8BB8D0;
+  --text:    #FFFFFF;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text); font-family: 'Segoe UI', sans-serif; min-height: 100vh; }
+
+/* ── HEADER ── */
+header {
+  background: linear-gradient(135deg, #0D1F3C 0%, #1C3B6E 100%);
+  padding: 28px 40px 20px;
+  border-bottom: 2px solid var(--accent);
+}
+.header-top { display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 16px; }
+.brand { font-size: 28px; font-weight: 800; color: var(--accent); letter-spacing: 1px; }
+.brand span { color: var(--light); font-weight: 300; }
+.header-meta { text-align: right; }
+.header-meta .date { font-size: 12px; color: var(--gray); }
+.total-banner {
+  margin-top: 16px;
+  background: linear-gradient(90deg, rgba(0,180,216,0.15) 0%, rgba(6,214,160,0.15) 100%);
+  border: 1px solid var(--accent);
+  border-radius: 10px;
+  padding: 14px 20px;
+  display: flex; gap: 40px; align-items: center; flex-wrap: wrap;
+}
+.total-item { text-align: center; }
+.total-item .val { font-size: 22px; font-weight: 800; color: var(--success); }
+.total-item .lbl { font-size: 11px; color: var(--gray); margin-top: 2px; }
+.total-divider { width: 1px; height: 40px; background: var(--border); }
+.warning-banner {
+  margin-top: 10px;
+  background: rgba(255,183,3,0.12);
+  border-left: 3px solid var(--warn);
+  border-radius: 6px;
+  padding: 10px 14px;
+  font-size: 13px; color: var(--warn);
+}
+
+/* ── FILTERS ── */
+.filters {
+  background: var(--primary);
+  padding: 14px 40px;
+  display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
+  border-bottom: 1px solid var(--border);
+}
+.filter-label { font-size: 12px; color: var(--gray); margin-right: 4px; }
+.chip {
+  padding: 6px 14px; border-radius: 20px; font-size: 12px; font-weight: 600; cursor: pointer;
+  border: 1px solid var(--border); background: transparent; color: var(--gray);
+  transition: all 0.2s;
+}
+.chip:hover, .chip.active { background: var(--accent); border-color: var(--accent); color: #fff; }
+.chip.tier1 { border-color: var(--success); }
+.chip.tier1.active, .chip.tier1:hover { background: var(--success); border-color: var(--success); color: #0D1F3C; }
+.chip.tier2 { border-color: var(--warn); }
+.chip.tier2.active, .chip.tier2:hover { background: var(--warn); border-color: var(--warn); color: #0D1F3C; }
+.chip.tier3 { border-color: var(--danger); }
+.chip.tier3.active, .chip.tier3:hover { background: var(--danger); border-color: var(--danger); color: #fff; }
+
+/* ── MAIN ── */
+main { padding: 28px 40px 60px; max-width: 1400px; margin: 0 auto; }
+
+/* ── SECTION ── */
+.section-header {
+  display: flex; align-items: center; gap: 12px;
+  margin-bottom: 18px; margin-top: 32px;
+}
+.section-badge {
+  padding: 5px 14px; border-radius: 20px; font-size: 12px; font-weight: 800; letter-spacing: 0.5px;
+}
+.badge-t1 { background: var(--success); color: #0D1F3C; }
+.badge-t2 { background: var(--warn); color: #0D1F3C; }
+.badge-t3 { background: var(--danger); color: #fff; }
+.badge-compl { background: var(--accent2); color: #fff; }
+.section-title { font-size: 18px; font-weight: 700; }
+.section-sub { font-size: 13px; color: var(--gray); margin-left: auto; }
+
+/* ── GRID ── */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 16px; }
+
+/* ── CARD ── */
+.card {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 20px;
+  transition: transform 0.15s, border-color 0.15s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+.card:hover { transform: translateY(-2px); border-color: var(--accent); }
+.card.urgent { border-color: var(--warn); }
+.card.urgent::before {
+  content: 'URGENT';
+  position: absolute; top: 0; right: 0;
+  background: var(--warn); color: #0D1F3C;
+  font-size: 10px; font-weight: 800; padding: 3px 10px;
+  border-bottom-left-radius: 8px;
+}
+.card.hidden { display: none; }
+
+.card-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 10px; }
+.card-name { font-size: 15px; font-weight: 700; color: var(--light); line-height: 1.3; flex: 1; padding-right: 8px; }
+.card-amount {
+  background: rgba(0,180,216,0.15); border: 1px solid var(--accent);
+  border-radius: 8px; padding: 4px 10px; font-size: 13px; font-weight: 700;
+  color: var(--accent); white-space: nowrap;
+}
+.card-amount.green { background: rgba(6,214,160,0.15); border-color: var(--success); color: var(--success); }
+.card-amount.warn { background: rgba(255,183,3,0.15); border-color: var(--warn); color: var(--warn); }
+
+.card-nature {
+  display: inline-block; padding: 2px 8px; border-radius: 4px; font-size: 11px; font-weight: 600;
+  margin-bottom: 10px;
+}
+.nature-subv { background: rgba(6,214,160,0.2); color: var(--success); }
+.nature-pret { background: rgba(0,180,216,0.2); color: var(--accent); }
+.nature-credit { background: rgba(0,119,182,0.3); color: #90E0EF; }
+.nature-equity { background: rgba(239,71,111,0.2); color: var(--danger); }
+.nature-label { background: rgba(139,184,208,0.2); color: var(--gray); }
+
+.card-rows { display: flex; flex-direction: column; gap: 6px; }
+.card-row { display: flex; gap: 8px; font-size: 13px; }
+.card-row .lbl { color: var(--gray); min-width: 90px; flex-shrink: 0; }
+.card-row .val { color: var(--light); }
+.card-row .val.danger { color: var(--danger); font-weight: 600; }
+.card-row .val.warn { color: var(--warn); font-weight: 600; }
+.card-row .val.success { color: var(--success); }
+
+.stars { color: var(--warn); font-size: 14px; }
+.card-action {
+  margin-top: 12px; padding-top: 12px;
+  border-top: 1px solid var(--border);
+  font-size: 12px; color: var(--accent);
+  display: flex; gap: 6px; align-items: flex-start;
+}
+.card-action::before { content: '→'; flex-shrink: 0; }
+
+/* ── CHECKLIST ── */
+.checklist {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; margin-top: 32px;
+}
+.checklist h3 { font-size: 16px; font-weight: 700; margin-bottom: 16px; color: var(--accent); }
+.check-items { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 10px; }
+.check-item {
+  display: flex; gap: 10px; align-items: flex-start;
+  padding: 10px 14px; background: rgba(255,255,255,0.04);
+  border: 1px solid var(--border); border-radius: 8px;
+  cursor: pointer; transition: background 0.15s;
+}
+.check-item:hover { background: rgba(0,180,216,0.08); }
+.check-item.done { opacity: 0.5; }
+.check-item.done .check-text { text-decoration: line-through; }
+.checkbox {
+  width: 18px; height: 18px; border: 2px solid var(--border); border-radius: 4px;
+  flex-shrink: 0; display: flex; align-items: center; justify-content: center;
+  transition: all 0.15s;
+}
+.check-item.done .checkbox { background: var(--success); border-color: var(--success); }
+.check-item.done .checkbox::after { content: '✓'; color: #0D1F3C; font-size: 11px; font-weight: 800; }
+.check-text { font-size: 13px; line-height: 1.4; }
+.check-badge { font-size: 11px; font-weight: 700; padding: 1px 6px; border-radius: 3px; background: var(--warn); color: #0D1F3C; flex-shrink: 0; }
+
+/* ── TIMELINE ── */
+.timeline {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: 12px; padding: 24px; margin-top: 16px;
+}
+.timeline h3 { font-size: 16px; font-weight: 700; margin-bottom: 20px; color: var(--accent); }
+.tl-row { display: flex; gap: 0; margin-bottom: 0; }
+.tl-period {
+  flex: 1; position: relative;
+  border-top: 3px solid var(--border);
+  padding-top: 12px; padding-right: 12px;
+}
+.tl-period.t1 { border-color: var(--success); }
+.tl-period.t2 { border-color: var(--warn); }
+.tl-period.t3 { border-color: var(--danger); }
+.tl-period::before {
+  content: ''; position: absolute; top: -7px; left: 0;
+  width: 12px; height: 12px; border-radius: 50%;
+  background: var(--border);
+}
+.tl-period.t1::before { background: var(--success); }
+.tl-period.t2::before { background: var(--warn); }
+.tl-period.t3::before { background: var(--danger); }
+.tl-label { font-size: 11px; font-weight: 700; color: var(--gray); text-transform: uppercase; margin-bottom: 8px; }
+.tl-period.t1 .tl-label { color: var(--success); }
+.tl-period.t2 .tl-label { color: var(--warn); }
+.tl-period.t3 .tl-label { color: var(--danger); }
+.tl-items { display: flex; flex-direction: column; gap: 4px; }
+.tl-item { font-size: 12px; color: var(--light); background: rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 4px; }
+.tl-amount { font-size: 11px; color: var(--gray); }
+
+/* ── RESPONSIVE ── */
+@media (max-width: 768px) {
+  header { padding: 20px; }
+  main { padding: 16px; }
+  .filters { padding: 12px 16px; }
+  .total-banner { gap: 20px; }
+  .tl-row { flex-direction: column; gap: 16px; }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-top">
+    <div>
+      <div class="brand">Carebiome <span>/ Financement Public</span></div>
+      <div style="font-size:13px;color:var(--gray);margin-top:4px;">28 programmes identifiés — Stratégie non-dilutive pre-seed</div>
+    </div>
+    <div class="header-meta">
+      <div style="font-size:18px;font-weight:800;color:var(--success);">305k – 660k€</div>
+      <div class="date">potentiel non dilutif pre-seed (sans i-Lab)</div>
+      <div class="date" style="margin-top:2px;">Mis à jour : 21 fév. 2026</div>
+    </div>
+  </div>
+
+  <div class="total-banner">
+    <div class="total-item">
+      <div class="val">305k – 660k€</div>
+      <div class="lbl">Total non dilutif potentiel (An 1)</div>
+    </div>
+    <div class="total-divider"></div>
+    <div class="total-item">
+      <div class="val" style="color:var(--danger);text-decoration:line-through;opacity:0.5;">i-Lab 2026</div>
+      <div class="lbl" style="color:var(--danger);">FERMÉ — retenter 2027</div>
+    </div>
+    <div class="total-divider"></div>
+    <div class="total-item">
+      <div class="val" style="color:var(--accent);">90k – 110k€</div>
+      <div class="lbl">CIR/CII automatique dès création</div>
+    </div>
+    <div class="total-divider"></div>
+    <div class="total-item">
+      <div class="val" style="color:var(--danger);">jusqu'à 2,5M€</div>
+      <div class="lbl">EIC Accelerator (post-POC)</div>
+    </div>
+  </div>
+
+  <div class="warning-banner" style="background:rgba(239,71,111,0.1);border-color:var(--danger);color:var(--danger);">
+    ✖ <strong>i-Lab 2026 fermé.</strong> Prochain i-Lab : 2027 (avec POC validé = dossier bien plus fort). <span style="color:var(--warn);">→ Nouvelle priorité #1 : contacter MetaGenoPolis INRAE pour débloquer l'Aide à l'Emergence (50-100k€).</span>
+  </div>
+</header>
+
+<div class="filters">
+  <span class="filter-label">Filtrer :</span>
+  <button class="chip active" onclick="filterCards('all')">Tous</button>
+  <button class="chip tier1" onclick="filterCards('t1')">Tier 1 — Maintenant</button>
+  <button class="chip tier2" onclick="filterCards('t2')">Tier 2 — Post-POC</button>
+  <button class="chip tier3" onclick="filterCards('t3')">Tier 3 — 2027+</button>
+  <button class="chip" onclick="filterCards('subv')">Subvention</button>
+  <button class="chip" onclick="filterCards('pret')">Prêt</button>
+  <button class="chip" onclick="filterCards('credit')">Crédit impôt</button>
+  <button class="chip" onclick="filterCards('urgent')">Urgent</button>
+</div>
+
+<main>
+
+<!-- ── TIER 1 ── -->
+<div class="section-header">
+  <div class="section-badge badge-t1">TIER 1</div>
+  <div class="section-title">Activer maintenant — Q1/Q2 2026 (pre-POC)</div>
+  <div class="section-sub">Potentiel : 520k – 1,16M€</div>
+</div>
+<div class="grid">
+
+  <div class="card urgent" data-tags="t1 credit urgent">
+    <div class="card-header">
+      <div class="card-name">CIR — Crédit d'Impôt Recherche</div>
+      <div class="card-amount green">~90 000 €</div>
+    </div>
+    <span class="card-nature nature-credit">Crédit d'impôt remboursable</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Montant</span><span class="val">30% dépenses R&D (remboursable si déficitaire)</span></div>
+      <div class="card-row"><span class="lbl">Eligibilité</span><span class="val">Toute SAS française avec activités R&D</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val success">Déclaration annuelle — dès création J1</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★★</span></div>
+    </div>
+    <div class="card-action">Mandater expert-comptable CIR/CII + documenter TOUTES les dépenses R&D dès le premier jour (salaires, labos, INRAE, équipements)</div>
+  </div>
+
+  <div class="card" data-tags="t1 credit">
+    <div class="card-header">
+      <div class="card-name">CII — Crédit d'Impôt Innovation</div>
+      <div class="card-amount green">15 000 – 30 000 €</div>
+    </div>
+    <span class="card-nature nature-credit">Crédit d'impôt remboursable</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Montant</span><span class="val">20% dépenses innovation (prototypes, UX, kit)</span></div>
+      <div class="card-row"><span class="lbl">Eligibilité</span><span class="val">PME < 250 salariés — complémentaire CIR</span></div>
+      <div class="card-row"><span class="lbl">Dépenses</span><span class="val">Kit prototypage, interface rapport, tests UX 50+</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val success">Dès création — coupler avec CIR</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">Inclure dans la même démarche que le CIR avec l'expert-comptable</div>
+  </div>
+
+  <div class="card" data-tags="t1 subv" style="opacity:0.45;border-color:var(--danger);pointer-events:none;">
+    <div class="card-header">
+      <div class="card-name" style="text-decoration:line-through;color:var(--gray);">i-Lab 2026 — Concours National d'Innovation</div>
+      <div class="card-amount" style="background:rgba(239,71,111,0.15);border-color:var(--danger);color:var(--danger);">FERMÉ</div>
+    </div>
+    <span class="card-nature" style="background:rgba(239,71,111,0.2);color:var(--danger);">Session 2026 terminée</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Montant manqué</span><span class="val" style="color:var(--danger);">200 000 – 600 000 €</span></div>
+      <div class="card-row"><span class="lbl">Prochain appel</span><span class="val">i-Lab 2027 — préparer avec POC validé</span></div>
+      <div class="card-row"><span class="lbl">Atouts 2027</span><span class="val">POC + données + INRAE = dossier bien plus fort</span></div>
+    </div>
+    <div class="card-action" style="color:var(--gray);">Retenter en 2027 avec les résultats POC</div>
+  </div>
+
+  <div class="card urgent" data-tags="t1 subv urgent">
+    <div class="card-header">
+      <div class="card-name">Aide à l'Emergence / Maturation — Bpifrance</div>
+      <div class="card-amount green">50 000 – 100 000 €</div>
+    </div>
+    <span class="card-nature nature-subv">Subvention non dilutive</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Condition</span><span class="val warn">⚡ Requiert partenariat INRAE formalisé</span></div>
+      <div class="card-row"><span class="lbl">Eligibilité</span><span class="val">Projet issu d'un labo public (INRAE/INSERM)</span></div>
+      <div class="card-row"><span class="lbl">Via</span><span class="val">SATT IDF-Innov ou INRAE Transfert</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Permanent, délai 2-3 mois</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★★</span></div>
+    </div>
+    <div class="card-action">Contacter MetaGenoPolis INRAE (Jouy-en-Josas) → lettre d'intention → dossier Emergence. Débloque aussi PRCE, DGS/INSERM, i-Lab</div>
+  </div>
+
+  <div class="card" data-tags="t1 pret">
+    <div class="card-header">
+      <div class="card-name">Prêt d'Amorçage (PAI) — Bpifrance</div>
+      <div class="card-amount">150 000 – 300 000 €</div>
+    </div>
+    <span class="card-nature nature-pret">Prêt sans garantie — non dilutif</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Condition</span><span class="val warn">⚡ Co-investisseur privé requis (ratio 1:1)</span></div>
+      <div class="card-row"><span class="lbl">Conditions</span><span class="val">Taux réduit, 2 ans de franchise</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">6-12 semaines après dossier — dès 1er BA confirmé</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">Identifier 1-2 business angels (Angelsquare, Santé Angels) → PAI Bpifrance suit automatiquement</div>
+  </div>
+
+  <div class="card" data-tags="t1 pret">
+    <div class="card-header">
+      <div class="card-name">Prêt d'Honneur — Réseau Entreprendre</div>
+      <div class="card-amount">15 000 – 50 000 €</div>
+    </div>
+    <span class="card-nature nature-pret">Prêt taux 0 — non dilutif</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Nature</span><span class="val">Prêt personnel au dirigeant, sans garantie</span></div>
+      <div class="card-row"><span class="lbl">Bonus</span><span class="val success">Facilite l'obtention du PAI Bpifrance</span></div>
+      <div class="card-row"><span class="lbl">+ Accompagnement</span><span class="val">Mentor chef d'entreprise bénévole</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Permanent, délai 2-4 mois</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">Déposer dossier dès création SAS — simple, rapide, standard du parcours création innovante. Cumuler avec Initiative France</div>
+  </div>
+
+  <div class="card" data-tags="t1 subv">
+    <div class="card-header">
+      <div class="card-name">INNOV'up Amorçage — Région Île-de-France</div>
+      <div class="card-amount green">30 000 – 200 000 €</div>
+    </div>
+    <span class="card-nature nature-subv">Subvention régionale — non dilutive</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Eligibilité</span><span class="val">Siège IDF, startup < 5 ans, projet innovant</span></div>
+      <div class="card-row"><span class="lbl">Atouts</span><span class="val">Silver economy + santé numérique = priorités IDF</span></div>
+      <div class="card-row"><span class="lbl">Ancrage</span><span class="val success">INRAE Jouy-en-Josas (IDF), AP-HP Paris ✓</span></div>
+      <div class="card-row"><span class="lbl">Sessions</span><span class="val">2-3 par an — vérifier calendrier 2026</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">Consulter entreprises.iledefrance.fr → programme INNOV'up</div>
+  </div>
+
+</div>
+
+<!-- ── TIER 2 ── -->
+<div class="section-header">
+  <div class="section-badge badge-t2">TIER 2</div>
+  <div class="section-title">Préparer maintenant, activer post-POC — Q3/Q4 2026</div>
+  <div class="section-sub">Potentiel : 1,4M – 6M€</div>
+</div>
+<div class="grid">
+
+  <div class="card" data-tags="t2 equity">
+    <div class="card-header">
+      <div class="card-name">French Tech Seed — Bpifrance</div>
+      <div class="card-amount warn">200 000 – 500 000 €</div>
+    </div>
+    <span class="card-nature nature-equity">Equity minoritaire (dilutif)</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Nature</span><span class="val">Prise de participation Bpifrance — légitimant</span></div>
+      <div class="card-row"><span class="lbl">Prérequis</span><span class="val warn">Intégrer un incubateur labellisé French Tech</span></div>
+      <div class="card-row"><span class="lbl">Profil</span><span class="val success">Biotech + healthtech + silver economy = parfait</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">Candidater Paris&Co Santé ou Agoranov maintenant → ouvre l'accès French Tech Seed dès le POC validé</div>
+  </div>
+
+  <div class="card" data-tags="t2 subv">
+    <div class="card-header">
+      <div class="card-name">EIC Accelerator — Commission Européenne</div>
+      <div class="card-amount warn">jusqu'à 2,5 M€</div>
+    </div>
+    <span class="card-nature nature-subv">Grant non dilutif (+ option equity EIC)</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Montant</span><span class="val">Grant seul : 2,5 M€ / Grant+Equity : +15 M€</span></div>
+      <div class="card-row"><span class="lbl">Taux succès</span><span class="val warn">5-8% — préparation rigoureuse requise</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">3 sessions/an — déposer post-POC (fin 2026)</span></div>
+      <div class="card-row"><span class="lbl">Préparation</span><span class="val">Utiliser MRSEI ANR pour financer le montage</span></div>
+      <div class="card-row"><span class="lbl">Fit post-POC</span><span class="stars">★★★★★</span></div>
+    </div>
+    <div class="card-action">Préparer le dossier anglais dès maintenant — eic.ec.europa.eu/eic-accelerator</div>
+  </div>
+
+  <div class="card" data-tags="t2 subv">
+    <div class="card-header">
+      <div class="card-name">PRCE — Projets Recherche Collaborative (ANR)</div>
+      <div class="card-amount green">500 000 – 2 M€</div>
+    </div>
+    <span class="card-nature nature-subv">Subvention consortium — non dilutive</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Consortium</span><span class="val warn">Carebiome + MetaGenoPolis INRAE obligatoire</span></div>
+      <div class="card-row"><span class="lbl">Thématique</span><span class="val success">"Microbiome et vieillissement en bonne santé"</span></div>
+      <div class="card-row"><span class="lbl">Dépôt</span><span class="val">Automne 2026 (financement 2027)</span></div>
+      <div class="card-row"><span class="lbl">Préparation</span><span class="val warn">12-18 mois → contacter INRAE maintenant</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">Initier contact MetaGenoPolis dès maintenant — dossier ANR PRCE se prépare sur 12-18 mois</div>
+  </div>
+
+  <div class="card" data-tags="t2 pret">
+    <div class="card-header">
+      <div class="card-name">Prêt Innovation — Bpifrance</div>
+      <div class="card-amount">500 000 – 1 M€</div>
+    </div>
+    <span class="card-nature nature-pret">Prêt bonifié sans garantie — non dilutif</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Post-seed, An 2-3 (premiers revenus)</span></div>
+      <div class="card-row"><span class="lbl">Co-financement</span><span class="val">Investissement privé attendu</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★</span></div>
+    </div>
+    <div class="card-action">Activer après la levée seed quand les premiers clients POC sont acquis</div>
+  </div>
+
+  <div class="card" data-tags="t2 subv">
+    <div class="card-header">
+      <div class="card-name">i-Nov — Appels Thématiques Bpifrance</div>
+      <div class="card-amount green">200 000 – 600 000 €</div>
+    </div>
+    <span class="card-nature nature-subv">Avance remboursable + subvention partielle</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Thématiques</span><span class="val">Santé, numérique, vieillissement actif (si retenu)</span></div>
+      <div class="card-row"><span class="lbl">Sessions</span><span class="val">2 sessions/an — vérifier thématiques 2026</span></div>
+      <div class="card-row"><span class="lbl">Eligibilité</span><span class="val">PME < 250 salariés</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★</span></div>
+    </div>
+    <div class="card-action">Surveiller bpifrance.fr/i-nov — dépend des thématiques retenues pour 2026</div>
+  </div>
+
+</div>
+
+<!-- ── TIER 3 ── -->
+<div class="section-header">
+  <div class="section-badge badge-t3">TIER 3</div>
+  <div class="section-title">Moyen terme — 2027+</div>
+  <div class="section-sub">Potentiel : 3,5M – 13M€</div>
+</div>
+<div class="grid">
+
+  <div class="card" data-tags="t3 subv">
+    <div class="card-header">
+      <div class="card-name">EIC Accelerator complet (Grant + Equity)</div>
+      <div class="card-amount warn">2,5 M€ + 15 M€</div>
+    </div>
+    <span class="card-nature nature-subv">Grant + Equity EIC Fund</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Post Series A, données cliniques disponibles</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★★</span></div>
+    </div>
+    <div class="card-action">Préparer dès maintenant, déposer post-POC et post-Series A</div>
+  </div>
+
+  <div class="card" data-tags="t3 subv">
+    <div class="card-header">
+      <div class="card-name">Horizon Europe — Cluster Santé</div>
+      <div class="card-amount warn">3 – 8 M€</div>
+    </div>
+    <span class="card-nature nature-subv">Subvention consortium international</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Consortium</span><span class="val">Minimum 3 pays UE</span></div>
+      <div class="card-row"><span class="lbl">Thématiques</span><span class="val success">Healthy Aging, Microbiome, Prevention</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★</span></div>
+    </div>
+    <div class="card-action">ec.europa.eu — Work Programme 2025-2027 Cluster Health</div>
+  </div>
+
+  <div class="card" data-tags="t3 subv">
+    <div class="card-header">
+      <div class="card-name">France 2030 — Biotech / Santé Numérique</div>
+      <div class="card-amount warn">500 000 – 5 M€</div>
+    </div>
+    <span class="card-nature nature-subv">Appels thématiques Bpifrance</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Volet ciblé</span><span class="val">Diagnostics innovants / prévention personnalisée</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★</span></div>
+    </div>
+    <div class="card-action">Surveiller bpifrance.fr/france-2030 pour les appels 2026-2027</div>
+  </div>
+
+</div>
+
+<!-- ── COMPLÉMENTAIRES ── -->
+<div class="section-header">
+  <div class="section-badge badge-compl">COMPLÉMENTAIRES</div>
+  <div class="section-title">Programmes complémentaires & Accompagnement</div>
+</div>
+<div class="grid">
+
+  <div class="card" data-tags="compl label">
+    <div class="card-header">
+      <div class="card-name">INPI — Aide aux Brevets (startup < 3 ans)</div>
+      <div class="card-amount">5 000 – 10 000 €</div>
+    </div>
+    <span class="card-nature nature-label">Réduction taxes + aide régionale</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Avantage</span><span class="val">-50% taxes dépôt + aide IDF "PI PME" 5k€</span></div>
+      <div class="card-row"><span class="lbl">Breveter</span><span class="val">Protocole prélèvement seniors + algorithme scoring</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">inpi.fr → INPI Direct IDF — protéger dès An 1</div>
+  </div>
+
+  <div class="card" data-tags="compl label">
+    <div class="card-header">
+      <div class="card-name">Paris & Co — Incubateur Santé / Silver Economy</div>
+      <div class="card-amount">Accompagnement</div>
+    </div>
+    <span class="card-nature nature-label">Incubation + réseau institutionnel</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Valeur</span><span class="val">Prérequis de facto pour French Tech Seed</span></div>
+      <div class="card-row"><span class="lbl">Bonus</span><span class="val success">Accès AP-HP, Région IDF, réseau santé Paris</span></div>
+      <div class="card-row"><span class="lbl">Sessions</span><span class="val">2x/an — candidater au prochain appel</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">parisandco.com/incubateurs — candidature prioritaire</div>
+  </div>
+
+  <div class="card" data-tags="compl label">
+    <div class="card-header">
+      <div class="card-name">Label French Tech — Mission French Tech</div>
+      <div class="card-amount">Signal fort</div>
+    </div>
+    <span class="card-nature nature-label">Label + accès réseau</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Valeur</span><span class="val">Accélère instruction Bpifrance + signal investisseurs</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Dès création SAS — via communauté FT Paris</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★</span></div>
+    </div>
+    <div class="card-action">lafrenchtech.com → communauté French Tech Paris</div>
+  </div>
+
+  <div class="card" data-tags="compl subv">
+    <div class="card-header">
+      <div class="card-name">MRSEI — ANR (préparation EIC)</div>
+      <div class="card-amount green">30 000 – 45 000 €</div>
+    </div>
+    <span class="card-nature nature-subv">Subvention préparation dossier européen</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Objectif</span><span class="val">Finance la préparation d'un dossier EIC Accelerator</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Permanent, instruction rapide (2-3 mois)</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★</span></div>
+    </div>
+    <div class="card-action">anr.fr → programme MRSEI — activer si EIC Accelerator dans la feuille de route</div>
+  </div>
+
+  <div class="card" data-tags="compl subv">
+    <div class="card-header">
+      <div class="card-name">i-PhD — Bpifrance (si fondateur docteur)</div>
+      <div class="card-amount green">30 000 – 90 000 €</div>
+    </div>
+    <span class="card-nature nature-subv">Concours national — non dilutif</span>
+    <div class="card-rows">
+      <div class="card-row"><span class="lbl">Condition</span><span class="val warn">Porteur = doctorant ou docteur < 5 ans post-thèse</span></div>
+      <div class="card-row"><span class="lbl">Profil idéal</span><span class="val">Bioinformaticien métagénomique ou microbiologiste</span></div>
+      <div class="card-row"><span class="lbl">Timing</span><span class="val">Synchronisé avec i-Lab (printemps)</span></div>
+      <div class="card-row"><span class="lbl">Fit</span><span class="stars">★★★★ si applicable</span></div>
+    </div>
+    <div class="card-action">bpifrance.fr → programme i-PhD — si co-fondateur scientifique concerné</div>
+  </div>
+
+</div>
+
+<!-- ── CHECKLIST ── -->
+<div class="checklist">
+  <h3>Checklist — Actions Semaines 1 à 4</h3>
+  <div class="check-items" id="checklist">
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-badge">URGENT</span>
+      <span class="check-text">Vérifier ouverture appel i-Lab 2026 sur bpifrance.fr/i-lab</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-badge">URGENT</span>
+      <span class="check-text">Contacter MetaGenoPolis INRAE → lettre d'intention partenariat (débloque Emergence, PRCE, DGS)</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Mandater expert-comptable spécialisé CIR/CII → documenter toutes les dépenses R&D dès J1</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Créer SAS + siège IDF → prérequis pour tous les dispositifs régionaux</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Déposer dossier Réseau Entreprendre → prêt d'honneur taux 0 (simple, rapide)</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Candidater Paris&Co Santé → incubation = prérequis French Tech Seed</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Identifier 1-2 business angels (Angelsquare, Santé Angels) → débloque PAI Bpifrance (300k€)</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Demander label French Tech Paris → accélère instruction Bpifrance</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Dépôt brevet INPI → protocole + algorithme scoring (réduction 50% taxes startup)</span>
+    </div>
+
+    <div class="check-item" onclick="toggleCheck(this)">
+      <div class="checkbox"></div>
+      <span class="check-text">Consulter INNOV'up IDF → calendrier 2026 sessions subvention régionale</span>
+    </div>
+
+  </div>
+</div>
+
+<!-- ── TIMELINE ── -->
+<div class="timeline">
+  <h3>Roadmap Financement Public — 2026-2027</h3>
+  <div class="tl-row">
+    <div class="tl-period t1">
+      <div class="tl-label">Q1-Q2 2026 — Pre-POC</div>
+      <div class="tl-items">
+        <div class="tl-item">CIR/CII <span class="tl-amount">90-110k€</span></div>
+        <div class="tl-item">i-Lab 2026 <span class="tl-amount">200-600k€</span></div>
+        <div class="tl-item">Emergence Bpifrance <span class="tl-amount">50-100k€</span></div>
+        <div class="tl-item">Prêt honneur RE <span class="tl-amount">15-50k€</span></div>
+        <div class="tl-item">PAI Bpifrance <span class="tl-amount">150-300k€</span></div>
+      </div>
+    </div>
+    <div class="tl-period t2">
+      <div class="tl-label">Q3-Q4 2026 — Post-POC</div>
+      <div class="tl-items">
+        <div class="tl-item">French Tech Seed <span class="tl-amount">200-500k€</span></div>
+        <div class="tl-item">EIC Accelerator (dépôt) <span class="tl-amount">2,5M€</span></div>
+        <div class="tl-item">PRCE ANR (préparation) <span class="tl-amount">500k-2M€</span></div>
+        <div class="tl-item">i-Nov thématique <span class="tl-amount">200-600k€</span></div>
+      </div>
+    </div>
+    <div class="tl-period t3">
+      <div class="tl-label">2027 — Scale</div>
+      <div class="tl-items">
+        <div class="tl-item">EIC Accelerator complet <span class="tl-amount">2,5M€+15M€</span></div>
+        <div class="tl-item">Horizon Europe Santé <span class="tl-amount">3-8M€</span></div>
+        <div class="tl-item">France 2030 Biotech <span class="tl-amount">500k-5M€</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="margin-top:24px;padding:16px 20px;background:rgba(255,183,3,0.08);border:1px solid rgba(255,183,3,0.3);border-radius:10px;font-size:12px;color:var(--gray);line-height:1.6;">
+  ⚠️ <strong style="color:var(--warn)">Note :</strong> Montants et conditions basés sur les données connues à date (Bpifrance, ANR, EIC). Vérifier systématiquement sur les sites officiels avant dépôt. Les aides de minimis UE sont cumulables dans la limite de 300 000€ sur 3 ans (CIR/CII non soumis à cette limite). Un conseil en financement public (Ayming, Innowen) peut optimiser le mix et sécuriser les dossiers.
+</div>
+
+</main>
+
+<script>
+function filterCards(tag) {
+  document.querySelectorAll('.chip').forEach(c => c.classList.remove('active'));
+  event.currentTarget.classList.add('active');
+
+  document.querySelectorAll('.card').forEach(card => {
+    const tags = card.dataset.tags || '';
+    if (tag === 'all') {
+      card.classList.remove('hidden');
+    } else {
+      card.classList.toggle('hidden', !tags.includes(tag));
+    }
+  });
+
+  // Update section headers visibility
+  document.querySelectorAll('.section-header').forEach(sh => {
+    const grid = sh.nextElementSibling;
+    if (!grid) return;
+    const visible = [...grid.querySelectorAll('.card')].some(c => !c.classList.contains('hidden'));
+    sh.style.display = visible ? 'flex' : 'none';
+    grid.style.display = visible ? 'grid' : 'none';
+  });
+}
+
+function toggleCheck(el) {
+  el.classList.toggle('done');
+  const done = document.querySelectorAll('.check-item.done').length;
+  const total = document.querySelectorAll('.check-item').length;
+  // Could add a progress bar here
+}
+</script>
+
+</body>
+</html>
